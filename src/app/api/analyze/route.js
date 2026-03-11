@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req) {
@@ -52,6 +54,6 @@ Be specific and honest.`
     return Response.json(result)
   } catch (e) {
     console.error(e)
-    return Response.json({ error: 'Analysis failed. Please try again.' }, { status: 500 })
+    return Response.json({ error: 'Analysis failed. Please try again.', detail: e?.message }, { status: 500 })
   }
 }
