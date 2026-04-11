@@ -3,6 +3,19 @@ import { stripe } from '@/lib/stripe/client'
 import { sendReportEmail } from '@/lib/email/resend'
 import type Stripe from 'stripe'
 
+async function generatePDF(analysisId: string): Promise<string | null> {
+  try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://viabl.co'
+    const res = await fetch(`${appUrl}/api/pdf/${analysisId}`)
+    if (!res.ok) throw new Error(`PDF fetch failed: ${res.status}`)
+    // PDF route handles upload internally — return confirm URL
+    return `${appUrl}/confirm/${analysisId}`
+  } catch (err) {
+    console.error('[webhook] PDF generation failed:', err)
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig  = req.headers.get('stripe-signature')!
@@ -15,11 +28,12 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const { analysisId, tier } = session.metadata || {}
+    const session    = event.data.object as Stripe.Checkout.Session
+    const analysisId = session.metadata?.analysisId
+    const tier       = session.metadata?.tier
 
-    // Update order in DB
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    // 1. Update order in DB
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && analysisId) {
       try {
         const { updateOrderPaid } = await import('@/lib/db/orders')
         await updateOrderPaid(
@@ -33,22 +47,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Send confirmation email
+    // 2. Generate + upload PDF
+    const confirmUrl = analysisId ? await generatePDF(analysisId) : null
+
+    // 3. Send email
     if (session.customer_details?.email && analysisId) {
       try {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://viabl.co'
         await sendReportEmail(
           session.customer_details.email,
           session.customer_details.name || '',
           analysisId,
-          `${appUrl}/confirm/${analysisId}`
+          confirmUrl || `${process.env.NEXT_PUBLIC_APP_URL}/confirm/${analysisId}`
         )
       } catch (err) {
         console.error('[webhook] email failed:', err)
       }
     }
 
-    console.log(`✓ Payment confirmed: ${session.id} | ${tier} | ${analysisId}`)
+    console.log(`✓ Paid | ${tier} | ${analysisId} | ${session.customer_details?.email}`)
   }
 
   return NextResponse.json({ received: true })

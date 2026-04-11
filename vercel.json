@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/analyze/route.ts": { "maxDuration": 60 },
+    "src/app/api/pdf/[id]/route.ts": { "maxDuration": 30 },
+    "src/app/api/webhook/stripe/route.ts": { "maxDuration": 30 }
+  }
+}
