@@ -133,7 +133,7 @@ export default function AnalyzePage() {
             <div className="font-bebas transition-all duration-700" style={{fontSize:'clamp(60px,9vw,110px)',letterSpacing:'0.01em',color:'var(--text)',transitionDelay:'100ms',opacity:mounted?1:0,transform:mounted?'none':'translateY(40px)'}}>
               {h.l1}
             </div>
-            <div className="font-bebas glitch-text transition-all duration-700" style={{fontSize:'clamp(60px,9vw,110px)',letterSpacing:'0.01em',color:'var(--acid)',transitionDelay:'180ms',opacity:mounted?1:0,transform:mounted?'none':'translateY(40px)'}}>
+            <div className="font-bebas transition-all duration-700" style={{fontSize:'clamp(60px,9vw,110px)',letterSpacing:'0.01em',color:'var(--acid)',transitionDelay:'180ms',opacity:mounted?1:0,transform:mounted?'none':'translateY(40px)'}}>
               {h.l2}
             </div>
           </div>
