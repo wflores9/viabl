@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       args: isProd ? chromium.args : ['--no-sandbox','--disable-setuid-sandbox'],
       executablePath: isProd
         ? await chromium.executablePath()
-        : '/usr/bin/google-chrome-stable',
+        : '/usr/bin/chromium-browser',
       headless: true,
     })
 
