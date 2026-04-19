@@ -12,7 +12,7 @@ async function getMarketContext(ideaText: string, industry: string) {
       // Structured competitor data using outputSchema
       exa.search(`${industry} startup companies apps tools "${ideaText.substring(0,50)}"`, {
         type: 'auto',
-        numResults: 5,
+        numResults: 2,
         outputSchema: {
           type: 'object',
           required: ['competitors'],
@@ -36,7 +36,7 @@ async function getMarketContext(ideaText: string, industry: string) {
       // Structured market size data
       exa.search(`${industry} market size revenue growth rate 2025 2026`, {
         type: 'auto',
-        numResults: 3,
+        numResults: 2,
         outputSchema: {
           type: 'object',
           required: ['market_size', 'growth_rate'],

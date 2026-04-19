@@ -1,69 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePDFLayout } from '@/lib/ai/pdf-design'
+import chromium from '@sparticuz/chromium'
+import puppeteer from 'puppeteer-core'
 
-export const maxDuration = 60
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params
+  if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 })
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+  let browser = null
   try {
-    const analysis = await (async () => {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null
-      const { getAnalysis } = await import('@/lib/db/analyses')
-      return getAnalysis(params.id)
-    })()
+    const isProd = process.env.NODE_ENV === 'production'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-    if (!analysis?.overall_score) {
-      return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
-    }
+    browser = await puppeteer.launch({
+      args: isProd ? chromium.args : ['--no-sandbox','--disable-setuid-sandbox'],
+      executablePath: isProd
+        ? await chromium.executablePath()
+        : '/usr/bin/google-chrome-stable',
+      headless: true,
+    })
 
-    const html = await generatePDFLayout(
-      analysis,
-      analysis.brand_kit || null,
-      analysis.idea_summary || 'Business Analysis'
-    )
+    const page = await browser.newPage()
+    await page.setViewport({ width: 1200, height: 900, deviceScaleFactor: 2 })
 
-    try {
-      const chromium  = (await import('@sparticuz/chromium')).default
-      const puppeteer = (await import('puppeteer-core')).default
+    // Load results page with pdf mode
+    await page.goto(`${appUrl}/results/${id}?pdf=true&unlock=true`, {
+      waitUntil: 'networkidle0',
+      timeout: 30000,
+    })
 
-      const browser = await puppeteer.launch({
-        args:            chromium.args,
-        executablePath:  await chromium.executablePath(),
-        headless:        true,
-      })
+    // Wait for content to render
+    await page.waitForSelector('[data-pdf-ready]', { timeout: 10000 }).catch(() => {})
+    await new Promise(r => setTimeout(r, 2000))
 
-      const page = await browser.newPage()
-      await page.setContent(html, { waitUntil: 'networkidle0' })
-      // brief wait for fonts
-      await new Promise(r => setTimeout(r, 1500))
+    // Hide nav, copilot, paywall for PDF
+    await page.addStyleTag({ content: `
+      nav, .no-print, [data-copilot], .fixed.bottom-0 { display: none !important; }
+      body { background: #0e0c0a !important; }
+      @media print { * { -webkit-print-color-adjust: exact !important; } }
+    `})
 
-      const pdfUint8 = await page.pdf({
-        format:          'A4',
-        printBackground: true,
-        margin:          { top:'0', right:'0', bottom:'0', left:'0' },
-      })
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' }
+    })
 
-      await browser.close()
+    await browser.close()
 
-      return new NextResponse(Buffer.from(pdfUint8) as unknown as BodyInit, {
-        headers: {
-          'Content-Type':        'application/pdf',
-          'Content-Disposition': `attachment; filename="Viabl_Report_${params.id.substring(0,8)}.pdf"`,
-        }
-      })
-
-    } catch (puppeteerErr) {
-      console.warn('[pdf] Puppeteer failed, falling back to HTML:', puppeteerErr)
-      // Fallback: return printable HTML
-      return new NextResponse(html, {
-        headers: {
-          'Content-Type':    'text/html; charset=utf-8',
-          'X-PDF-Fallback':  'true',
-        }
-      })
-    }
-
+    return new NextResponse(Buffer.from(pdf), {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="viabl-report-${id}.pdf"`,
+        'Cache-Control': 'no-store',
+      }
+    })
   } catch (err) {
-    console.error('[pdf/id]', err)
+    if (browser) await browser.close().catch(() => {})
+    console.error('[pdf]', err)
     return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }
