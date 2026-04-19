@@ -1,78 +1,212 @@
 'use client'
-import{useState}from'react'
-import{useRouter}from'next/navigation'
-import{Navbar}from'@/components/ui/Navbar'
-import{MeterRow}from'@/components/ui/MeterRow'
-import{ModelTag}from'@/components/ui/ModelTag'
-import{TierCard}from'@/components/ui/TierCard'
-import{SectionLabel}from'@/components/ui/SectionLabel'
-import{useViablStore}from'@/store/viabl'
-import{TIERS}from'@/types'
-import type{AnalysisResult,Tier}from'@/types'
-import{cn}from'@/lib/utils'
-const SAMPLE:AnalysisResult={overall_score:78,verdict:'GO',idea_summary:'Permit & License SaaS for Restaurants',one_liner:'"Compliance automation for food operators who cannot afford to get shut down"',summary:'Large underserved market with acute pain and high willingness to pay. Low direct competition in SMB segment.',market_size:'Large and underserved. 1M+ US restaurants each managing 8-15 permits annually. Compliance software market $4.2B growing 12% YoY.',demand_signal:'Strong. 60% of closures involve compliance issues. Shutdown costs average $15K-$50K. Pain directly tied to revenue loss.',competition:'Fragmented. Toast and Square touch adjacent problems. Specialized players target enterprise. SMB segment is wide open.',metrics:{'Market Demand':85,'Competition':35,'Revenue Potential':80,'Execution Risk':52,'Moat / Edge':70,'Customer Acquisition':65,'Regulatory':40,'Tech Feasibility':82,'Founder-Market Fit':68},revenue_models:['SaaS Subscription','Per-location pricing','Annual plans','Add-on services'],mrr_potential:'$49-$149/mo per location. At 500 locations, $25K-$75K MRR.',top_risks:['Data sourcing — permit databases vary by municipality. 18-month engineering project.','Restaurant tech adoption is low. Long sales cycles, high CS overhead.','Toast or Square could build this as a free feature.'],next_steps:["Cold email 20 restaurant owners. Ask how they track permits. Don't pitch software.","Build a free Permit Expiry Calculator landing page. Collect emails.","Partner with a restaurant accountant. Rev-share gets you 50 customers fast."],dimensions:[],recommendations:{gtm:[],tools:[],first_30_days:[]}}
-export default function ResultsPage({params}:{params:{id:string}}){
-  const router=useRouter()
-  const{analysisResult,setSelectedTier}=useViablStore()
-  const[copilotOpen,setCopilotOpen]=useState(false)
-  const r=analysisResult||SAMPLE
-  const sColor=r.overall_score>=70?'var(--acid)':r.overall_score>=45?'var(--yellow)':'var(--danger)'
-  const vBg=r.verdict==='GO'?'#16a34a':r.verdict==='MAYBE'?'#d97706':'#dc2626'
-  async function handleSelectTier(tier:Tier){
-    if(tier==='free')return
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/Navbar'
+import { useViablStore } from '@/store/viabl'
+import { TIERS } from '@/types'
+import type { AnalysisResult, Tier } from '@/types'
+
+const SAMPLE: AnalysisResult = {
+  overall_score:78, verdict:'GO',
+  idea_summary:'Permit & License SaaS for Restaurants',
+  one_liner:'"Compliance automation for food operators who cannot afford to get shut down"',
+  summary:'Large underserved market with acute pain and high willingness to pay. Low direct competition in SMB segment.',
+  market_size:'Large and underserved. 1M+ US restaurants each managing 8-15 permits annually. Compliance software market $4.2B growing 12% YoY.',
+  demand_signal:'Strong. 60% of closures involve compliance issues. Shutdown costs average $15K-$50K. Pain directly tied to revenue loss.',
+  competition:'Fragmented. Toast and Square touch adjacent problems. Specialized players target enterprise. SMB segment is wide open.',
+  metrics:{'Market Demand':85,'Competition':35,'Revenue Potential':80,'Execution Risk':52,'Moat / Edge':70,'Customer Acquisition':65,'Regulatory':40,'Tech Feasibility':82,'Founder-Market Fit':68},
+  revenue_models:['SaaS Subscription','Per-location pricing','Annual plans','Add-on services'],
+  mrr_potential:'$49-$149/mo per location. At 500 locations, $25K-$75K MRR.',
+  top_risks:['Data sourcing — permit databases vary by municipality. 18-month engineering project.','Restaurant tech adoption is low. Long sales cycles, high CS overhead.','Toast or Square could build this as a free feature.'],
+  next_steps:["Cold email 20 restaurant owners. Ask how they track permits. Don't pitch software.","Build a free Permit Expiry Calculator landing page. Collect emails.","Partner with a restaurant accountant. Rev-share gets you 50 customers fast."],
+  dimensions:[], recommendations:{ gtm:[], tools:[], first_30_days:[] }
+}
+
+function MeterBar({ label, value, isRisk }: { label:string; value:number; isRisk?:boolean }) {
+  const [w, setW] = useState(0)
+  useEffect(() => { setTimeout(() => setW(value), 100) }, [value])
+  const color = isRisk ? (value>60?'var(--red)':'#3DAA6A') : (value>=70?'#3DAA6A':value>=45?'var(--gold)':'var(--red)')
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'10px' }}>
+      <div style={{ fontFamily:'var(--font-dm-mono),monospace', fontSize:'.62rem', color:'var(--dim)', width:'150px', flexShrink:0 }}>{label}</div>
+      <div style={{ flex:1, height:'2px', background:'rgba(255,255,255,.07)' }}>
+        <div style={{ height:'100%', width:`${w}%`, background:color, transition:'width 1.2s cubic-bezier(.16,1,.3,1)' }}/>
+      </div>
+      <div style={{ fontFamily:'var(--font-dm-mono),monospace', fontSize:'.62rem', color, width:'28px', textAlign:'right' }}>{value}</div>
+    </div>
+  )
+}
+
+export default function ResultsPage({ params }: { params: { id: string } }) {
+  const router = useRouter()
+  const { analysisResult, setSelectedTier } = useViablStore()
+  const r = analysisResult || SAMPLE
+  const isGo    = r.verdict === 'GO'
+  const isMaybe = r.verdict === 'MAYBE'
+  const verdictColor = isGo ? '#3DAA6A' : isMaybe ? 'var(--gold)' : 'var(--red)'
+  const verdictLabel = isGo ? 'STRONG GO' : isMaybe ? 'VIABLE WITH CONDITIONS' : 'HIGH RISK'
+
+  async function handleSelectTier(tier: Tier) {
+    if (tier === 'free') return
     setSelectedTier(tier)
-    const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({analysisId:params.id,tier})})
-    const data=await res.json()
-    if(data.url)window.location.href=data.url
+    const res  = await fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ analysisId: params.id, tier }) })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
   }
-  return(<main><Navbar step={4}/>
-    <div className="max-w-[1100px] mx-auto px-6 py-6 pb-20">
-      <div className="accent-line"/>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-px bg-border mb-px">
-        <div className="card flex gap-8 items-start flex-wrap relative" style={{paddingLeft:'44px'}}>
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-acid"/>
-          <div className="font-bebas text-[108px] leading-none flex-shrink-0" style={{color:sColor}}>{r.overall_score}</div>
-          <div className="flex-1 min-w-[200px]">
-            <div className="font-bebas text-[32px] tracking-[0.04em] mb-2.5">{r.verdict==='GO'?'STRONG GO':r.verdict==='MAYBE'?'VIABLE WITH CONDITIONS':'HIGH RISK'}</div>
-            <div className="font-mono text-[12px] text-muted1 leading-[1.85] max-w-[480px]">{r.summary}</div>
-            <div className="font-bebas text-[13px] tracking-[0.15em] px-3.5 py-1 mt-3 inline-block" style={{background:vBg,color:'#fff'}}>{r.verdict}</div>
+
+  return (
+    <main style={{ minHeight:'100vh', background:'var(--black)' }}>
+      <Navbar step={4} totalSteps={4}/>
+      <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'3rem clamp(1.5rem,5vw,3rem) 6rem' }}>
+
+        {/* Top header */}
+        <div style={{ height:'2px', background:'linear-gradient(90deg,var(--red),rgba(200,16,46,.1) 60%,transparent)', marginBottom:'1px' }}/>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'1px', background:'rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          {/* Score + summary */}
+          <div style={{ background:'var(--surface)', padding:'2.5rem 2.5rem 2.5rem 3rem', position:'relative' }}>
+            <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'3px', background:'var(--red)' }}/>
+            <div style={{ display:'flex', gap:'2rem', alignItems:'flex-start', flexWrap:'wrap' }}>
+              <span style={{ fontFamily:'var(--font-playfair),serif', fontSize:'clamp(5rem,10vw,9rem)', fontWeight:900, lineHeight:1, color:verdictColor, flexShrink:0 }}>{r.overall_score}</span>
+              <div style={{ flex:1, minWidth:'200px' }}>
+                <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'clamp(1.5rem,3vw,2.5rem)', fontWeight:900, lineHeight:1.1, marginBottom:'1rem' }}>{verdictLabel}</div>
+                <p style={{ fontSize:'.72rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'480px' }}>{r.summary}</p>
+                <div style={{ display:'inline-block', fontFamily:'var(--font-barlow),sans-serif', fontWeight:700, fontSize:'.8rem', letterSpacing:'.25em', padding:'.4rem 1rem', marginTop:'1rem', background:verdictColor, color:'#fff', textTransform:'uppercase' }}>{r.verdict}</div>
+              </div>
+            </div>
+          </div>
+          {/* Meta */}
+          <div style={{ background:'var(--surface)', padding:'2rem 1.8rem', minWidth:'180px' }}>
+            {[['ID',`#${params.id.substring(0,8).toUpperCase()}`],['Score',`${r.overall_score}/100`],['Verdict',r.verdict]].map(([k,v]) => (
+              <div key={k} style={{ marginBottom:'1rem' }}>
+                <div style={{ fontSize:'.55rem', letterSpacing:'.16em', textTransform:'uppercase', color:'var(--dim)', marginBottom:'3px' }}>{k}</div>
+                <div style={{ fontFamily:'var(--font-dm-mono),monospace', fontSize:'.72rem', color: k==='Score'?verdictColor:'var(--white)' }}>{v}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="card flex flex-col gap-3.5">
-          {[['ID',`#${params.id.substring(0,8).toUpperCase()}`],['Score',`${r.overall_score}/100`],['Verdict',r.verdict]].map(([k,v])=>(
-            <div key={k}><div className="font-mono text-[9px] tracking-[0.16em] uppercase text-muted2 mb-[3px]">{k}</div><div className={cn('font-mono text-[12px]',k==='Score'&&'text-acid')}>{v}</div></div>
+
+        {/* Market + Demand */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', background:'rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          {[['Market Size', r.market_size],['Demand Signal', r.demand_signal]].map(([title,body]) => (
+            <div key={title} style={{ background:'var(--surface)', padding:'1.8rem' }}>
+              <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+                <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>{title}
+              </div>
+              <p style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.8 }}>{body}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Competition */}
+        <div style={{ background:'var(--surface)', padding:'1.8rem', border:'1px solid rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+            <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>Competitive Landscape
+          </div>
+          <p style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.8 }}>{r.competition}</p>
+        </div>
+
+        {/* Metrics */}
+        <div style={{ background:'var(--surface)', padding:'1.8rem', border:'1px solid rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.5rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+            <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>Analysis Metrics
+          </div>
+          {Object.entries(r.metrics).map(([k,v]) => (
+            <MeterBar key={k} label={k} value={v} isRisk={k==='Execution Risk'||k==='Regulatory'}/>
+          ))}
+        </div>
+
+        {/* Revenue + Risks */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', background:'rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          <div style={{ background:'var(--surface)', padding:'1.8rem' }}>
+            <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+              <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>Revenue Models
+            </div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'.4rem', marginBottom:'1.4rem' }}>
+              {r.revenue_models.map(m => (
+                <span key={m} style={{ fontFamily:'var(--font-barlow),sans-serif', fontWeight:600, fontSize:'.72rem', letterSpacing:'.08em', textTransform:'uppercase', padding:'.3rem .8rem', border:'1px solid rgba(255,255,255,.1)', color:'var(--white)' }}>{m}</span>
+              ))}
+            </div>
+            <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'.6rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+              <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>MRR Potential
+            </div>
+            <p style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.8 }}>{r.mrr_potential}</p>
+          </div>
+          <div style={{ background:'var(--surface)', padding:'1.8rem' }}>
+            <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+              <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>Top Risks
+            </div>
+            {r.top_risks.map((risk,i) => (
+              <div key={i} style={{ display:'flex', gap:'.8rem', marginBottom:'.9rem', fontSize:'.7rem', color:'var(--dim)', lineHeight:1.65 }}>
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'var(--gold)', flexShrink:0, marginTop:'7px' }}/>
+                <div>{risk}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Next 3 Moves */}
+        <div style={{ background:'var(--surface)', padding:'1.8rem', border:'1px solid rgba(255,255,255,.05)', marginBottom:'1px' }}>
+          <div style={{ fontSize:'.56rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.5rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+            <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>Your Next 3 Moves
+          </div>
+          {r.next_steps.map((s,i) => (
+            <div key={i} style={{ display:'flex', gap:'1.4rem', padding:'1.2rem 0', borderBottom: i<2?'1px solid rgba(255,255,255,.05)':'none', alignItems:'flex-start' }}>
+              <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'2rem', fontWeight:900, color:'var(--red)', flexShrink:0, lineHeight:1.3 }}>0{i+1}</div>
+              <div style={{ fontFamily:'var(--font-dm-mono),monospace', fontSize:'.7rem', color:'var(--dim)', lineHeight:1.75, paddingTop:'.3rem' }}>{s}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* LOCKED + UNLOCK CTA */}
+        <div style={{ position:'relative', marginBottom:'2px' }}>
+          {/* Blur preview */}
+          <div style={{ filter:'blur(5px)', pointerEvents:'none', userSelect:'none', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', background:'rgba(255,255,255,.05)' }}>
+            {['GTM Strategy','Brand Identity Kit','Risk Register','Pitch Narrative'].map((t,i) => (
+              <div key={i} style={{ background:'var(--surface)', padding:'1.8rem' }}>
+                <div style={{ height:'8px', background:'rgba(255,255,255,.06)', width:'40%', marginBottom:'1rem' }}/>
+                <div style={{ height:'8px', background:'rgba(255,255,255,.04)', width:'100%', marginBottom:'.6rem' }}/>
+                <div style={{ height:'8px', background:'rgba(255,255,255,.04)', width:'85%', marginBottom:'.6rem' }}/>
+                <div style={{ height:'8px', background:'rgba(255,255,255,.04)', width:'65%' }}/>
+              </div>
+            ))}
+          </div>
+          {/* Unlock overlay */}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom,transparent,rgba(5,5,5,.75) 20%,rgba(5,5,5,.97) 35%)', display:'flex', alignItems:'flex-end', justifyContent:'center', paddingBottom:'2.5rem' }}>
+            <div style={{ textAlign:'center' }}>
+              <div style={{ fontSize:'.56rem', letterSpacing:'.4em', textTransform:'uppercase', color:'var(--red)', marginBottom:'.8rem' }}>▶ Full Report Locked</div>
+              <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'clamp(1.4rem,3vw,2.5rem)', fontWeight:900, marginBottom:'.5rem' }}>Unlock Everything →</div>
+              <p style={{ fontSize:'.68rem', color:'var(--dim)', maxWidth:'420px', margin:'0 auto 1.5rem', lineHeight:1.75 }}>GTM playbook, brand identity kit, risk register, and pitch narrative. Instant delivery.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tier cards */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1px', background:'rgba(255,255,255,.05)' }}>
+          {TIERS.map(tier => (
+            <div key={tier.id} style={{ background:'var(--surface)', padding:'2rem 1.6rem', position:'relative', border: tier.featured ? '1px solid rgba(200,16,46,.35)' : '1px solid transparent', transition:'border-color .2s' }}>
+              {tier.featured && <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:'var(--red)' }}/>}
+              {tier.featured && <div style={{ fontSize:'.52rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--red)', marginBottom:'.8rem' }}>Best Value</div>}
+              <div style={{ fontFamily:'var(--font-barlow),sans-serif', fontWeight:800, fontSize:'1.1rem', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:'.5rem' }}>{tier.name}</div>
+              <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'2.8rem', fontWeight:900, lineHeight:1, marginBottom:'.3rem', color: tier.featured?'var(--white)':'var(--white)' }}>
+                ${tier.price}
+              </div>
+              <div style={{ fontSize:'.6rem', color:'var(--dim)', marginBottom:'1.4rem' }}>{tier.description}</div>
+              <div style={{ marginBottom:'1.6rem' }}>
+                {tier.items.map(item => (
+                  <div key={item} style={{ display:'flex', alignItems:'center', gap:'.5rem', fontSize:'.62rem', color:'var(--dim)', padding:'.25rem 0' }}>
+                    <span style={{ color:'#3DAA6A', flexShrink:0 }}>✓</span>{item}
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => handleSelectTier(tier.id as Tier)} disabled={tier.id==='free'}
+                className={tier.id==='free'?'':'btn-cine'}
+                style={{ width:'100%', padding:'.85rem', fontFamily:tier.id==='free'?'var(--font-dm-mono),monospace':'var(--font-barlow),sans-serif', fontWeight:tier.id==='free'?400:700, fontSize:tier.id==='free'?'.65rem':'.82rem', letterSpacing:'.15em', textTransform:'uppercase', cursor:tier.id==='free'?'default':'pointer', background:tier.id==='free'?'transparent':'var(--red)', color:'var(--dim)', border: tier.id==='free'?'1px solid rgba(255,255,255,.08)':'none', opacity:tier.id==='free'?.6:1 }}>
+                {tier.id==='free' ? 'Current Plan' : `Unlock → $${tier.price}`}
+              </button>
+            </div>
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border mb-px">
-        <div className="card"><SectionLabel>Market Size</SectionLabel><p className="font-mono text-[13px] leading-[1.75] text-muted1">{r.market_size}</p></div>
-        <div className="card"><SectionLabel>Demand Signal</SectionLabel><p className="font-mono text-[13px] leading-[1.75] text-muted1">{r.demand_signal}</p></div>
-      </div>
-      <div className="card mb-px"><SectionLabel>Competitive Landscape</SectionLabel><p className="font-mono text-[13px] leading-[1.75] text-muted1">{r.competition}</p></div>
-      <div className="card mb-px"><SectionLabel>Analysis Metrics</SectionLabel>{Object.entries(r.metrics).map(([k,v])=><MeterRow key={k} label={k} value={v} isCompetition={k==='Competition'} isRisk={k==='Execution Risk'||k==='Regulatory'}/>)}</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border mb-px">
-        <div className="card"><SectionLabel>Revenue Models</SectionLabel><div className="mb-3.5">{r.revenue_models.map(m=><ModelTag key={m} label={m}/>)}</div><SectionLabel className="mt-4">MRR Potential</SectionLabel><p className="font-mono text-[13px] leading-[1.75] text-muted1">{r.mrr_potential}</p></div>
-        <div className="card"><SectionLabel>Top Risks</SectionLabel>{r.top_risks.map((risk,i)=><div key={i} className="flex gap-2.5 mb-2.5 font-mono text-[13px] leading-[1.65] text-muted1"><div className="w-[5px] h-[5px] rounded-full bg-warn flex-shrink-0 mt-[7px]"/><div>{risk}</div></div>)}</div>
-      </div>
-      <div className="card mb-px"><SectionLabel>Your Next 3 Moves</SectionLabel>{r.next_steps.map((s,i)=>(<div key={i} className={cn('flex gap-4 py-3.5 items-start',i<2&&'border-b border-border')}><div className="font-bebas text-[20px] text-acid flex-shrink-0 leading-[1.4]">0{i+1}</div><div className="font-mono text-[13px] leading-[1.7] text-muted1 pt-0.5">{s}</div></div>))}</div>
-      <div className="relative">
-        <div className="pointer-events-none select-none blur-[5px] flex flex-col gap-px bg-border">{[...Array(4)].map((_,i)=><div key={i} className="bg-s1 p-5 grid grid-cols-[160px_1fr] gap-3.5"><div><div className="h-[10px] bg-s2 w-[70%] mb-1.5"/><div className="h-[10px] bg-s2 w-[50%]"/></div><div><div className="h-[10px] bg-s2 w-full mb-1.5"/><div className="h-[10px] bg-s2 w-[85%] mb-1.5"/><div className="h-[10px] bg-s2 w-[65%]"/></div></div>)}</div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-5 pt-20 pb-9" style={{background:'linear-gradient(to bottom,transparent,rgba(14,12,10,0.75) 18%,rgba(14,12,10,0.97) 32%)'}}>
-          <div className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted1 mb-5">7 dimensions locked · Full brand identity locked</div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border w-full max-w-[960px] mb-3.5">
-            {TIERS.map(tier=><TierCard key={tier.id} name={tier.name} price={tier.price} description={tier.description} items={tier.items} featured={tier.featured} badge={tier.featured?'Best Value':undefined} disabled={tier.id==='free'} ctaLabel={tier.id==='free'?'Current Plan':'Unlock →'} onSelect={()=>handleSelectTier(tier.id)}/>)}
-          </div>
-        </div>
-      </div>
-      <div className="flex justify-center mt-3"><button onClick={()=>router.push('/analyze')} className="bg-transparent text-muted1 border border-border2 font-mono text-[11px] tracking-[0.1em] uppercase px-5 py-3 hover:text-text hover:border-muted1">← Analyze another idea</button></div>
-    </div>
-    <button onClick={()=>setCopilotOpen(!copilotOpen)} className="fixed bottom-6 right-6 z-[300] bg-bg border border-acid text-acid px-4 py-2.5 font-mono text-[9px] tracking-[0.16em] uppercase flex items-center gap-2 hover:bg-acid/6">
-      <span className="w-[5px] h-[5px] bg-acid rounded-full flex-shrink-0" style={{animation:'pulse 2s infinite'}}/>{'>'} ASK VIABL
-    </button>
-    {copilotOpen&&(<div className="fixed bottom-16 right-6 w-[300px] bg-s1 border border-border p-5 z-[300]">
-      <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted2 mb-3.5">Viabl Copilot</div>
-      {['What does my execution risk score mean?','How do I improve my competition score?','What should I do in the first 30 days?'].map(q=><div key={q} className="font-mono text-[10px] text-muted1 p-2 border border-border2 mb-1.5 cursor-pointer hover:border-acid hover:text-text">{q}</div>)}
-      <input type="text" placeholder="> ask anything..." className="w-full bg-s2 border border-border2 font-mono text-[12px] p-2.5 outline-none mt-2 focus:border-acid"/>
-    </div>)}
-  </main>)
+    </main>
+  )
 }

@@ -25,3 +25,19 @@ export const INDUSTRIES = ['Food & Beverage','Health & Wellness','Technology / S
 export const BUSINESS_MODELS = [{label:'Subscription / SaaS',desc:'Recurring monthly or annual'},{label:'One-time Purchase',desc:'Pay once, own forever'},{label:'Marketplace',desc:'Take a cut of transactions'},{label:'Freemium',desc:'Free tier, paid upgrades'},{label:'Services / Agency',desc:'Billed per project or hour'},{label:'Ads / Media',desc:'Ad-supported content'}]
 export const GEOGRAPHIES = ['Global','North America','Europe','APAC','LATAM','Local / Regional']
 export const STAGES = [{icon:'💡',name:'Just an Idea',desc:'No code, no customers'},{icon:'🔨',name:'Building MVP',desc:'In progress or done'},{icon:'🚀',name:'Pre-Launch',desc:'Ready, no users yet'},{icon:'📈',name:'Live & Growing',desc:'Revenue or active users'},{icon:'🔄',name:'Pivoting',desc:'New direction'},{icon:'🔍',name:'Researching',desc:'Validating the idea'}]
+
+export interface BrandKit {
+  name:          string
+  tagline:       string
+  positioning:   string
+  voice_tone:    string
+  voice_personality: string
+  voice_avoid:   string
+  primary_color: string
+  accent_color:  string
+  font_display:  string
+  font_body:     string
+  icp:           string
+  elevator_pitch:string
+  domain_ideas:  string[]
+}

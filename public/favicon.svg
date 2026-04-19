@@ -1,1 +1,7 @@
-<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" fill="#0e0c0a"/><polygon points="4,4 11,4 16,21 21,4 28,4 20,28 12,28" fill="#d4ff00"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#050505"/>
+  <!-- Italic V in Playfair style -->
+  <text x="4" y="26" font-family="Georgia,serif" font-weight="900" font-style="italic" font-size="28" fill="#F0EDE6" letter-spacing="-1">V</text>
+  <!-- Red dot -->
+  <circle cx="26" cy="24" r="3" fill="#C8102E"/>
+</svg>

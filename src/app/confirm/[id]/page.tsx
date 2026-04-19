@@ -6,150 +6,134 @@ import { Navbar } from '@/components/ui/Navbar'
 import { useViablStore } from '@/store/viabl'
 import { TIERS } from '@/types'
 
-interface OrderData {
-  tier:           string
-  amount:         number
-  customer_email: string
-  customer_name:  string
-  pdf_url:        string | null
-}
-
 export default function ConfirmPage({ params }: { params: { id: string } }) {
-  const searchParams             = useSearchParams()
-  const sessionId                = searchParams.get('session_id')
-  const { selectedTier }         = useViablStore()
-  const [order, setOrder]        = useState<OrderData | null>(null)
-  const [pdfReady, setPdfReady]  = useState(false)
-
+  const searchParams           = useSearchParams()
+  const { selectedTier }       = useViablStore()
+  const [ready,    setReady]   = useState(false)
+  const [dlState,  setDlState] = useState<'idle'|'loading'|'done'>('idle')
   const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1]
 
+  // Poll until analysis is confirmed in DB
   useEffect(() => {
-    // Poll for order data (webhook may take a few seconds)
     let attempts = 0
     const poll = setInterval(async () => {
       attempts++
       try {
         const res  = await fetch(`/api/analysis/${params.id}`)
         const data = await res.json()
-        if (data?.overall_score) {
-          setOrder({
-            tier:           selectedTier,
-            amount:         tier.price,
-            customer_email: '',
-            customer_name:  '',
-            pdf_url:        null,
-          })
-          clearInterval(poll)
-        }
+        if (data?.overall_score) { setReady(true); clearInterval(poll) }
       } catch { /* ignore */ }
-      if (attempts >= 10) clearInterval(poll)
+      if (attempts >= 10) { setReady(true); clearInterval(poll) }
     }, 2000)
+    // Show UI after 2s regardless
+    setTimeout(() => setReady(true), 2000)
     return () => clearInterval(poll)
-  }, [params.id, selectedTier, tier.price])
+  }, [params.id])
 
-  async function handleDownloadPDF() {
-    setPdfReady(false)
+  async function handleDownload() {
+    setDlState('loading')
     try {
       const res = await fetch(`/api/pdf/${params.id}`)
-      if (!res.ok) throw new Error('PDF not ready')
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
-      a.download = `Viabl_Report_${params.id.substring(0,8)}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-      setPdfReady(true)
+      const ct  = res.headers.get('content-type') || ''
+
+      if (ct.includes('text/html')) {
+        // Fallback: open printable HTML in new tab
+        const html = await res.text()
+        const blob = new Blob([html], { type:'text/html' })
+        const url  = URL.createObjectURL(blob)
+        window.open(url, '_blank')
+        setTimeout(() => URL.revokeObjectURL(url), 10000)
+      } else {
+        // Real PDF download
+        const blob = await res.blob()
+        const url  = URL.createObjectURL(blob)
+        const a    = document.createElement('a')
+        a.href = url; a.download = `Viabl_Report_${params.id.substring(0,8)}.pdf`; a.click()
+        URL.revokeObjectURL(url)
+      }
+      setDlState('done')
     } catch {
-      alert('PDF is being generated. Try again in a moment.')
+      alert('Report is ready — try again in a moment.')
+      setDlState('idle')
     }
   }
 
   return (
-    <main>
-      <Navbar step={7} />
-      <div className="max-w-[700px] mx-auto px-6 py-12 pb-20 text-center">
+    <main style={{ minHeight:'100vh', background:'var(--black)' }}>
+      <Navbar/>
+      {/* Ambient glow */}
+      <div style={{ position:'fixed', top:0, left:'50%', transform:'translateX(-50%)', width:'600px', height:'500px', background:'radial-gradient(ellipse,rgba(61,170,106,.08) 0%,transparent 70%)', pointerEvents:'none' }}/>
+
+      <div style={{ position:'relative', zIndex:1, maxWidth:'600px', margin:'0 auto', padding:'5rem 2rem 6rem', textAlign:'center' }}>
 
         {/* Check animation */}
-        <div className="w-[76px] h-[76px] border border-acid rounded-full flex items-center justify-center mx-auto mb-9"
-          style={{ animation: 'popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-          <svg viewBox="0 0 40 40" className="w-8 h-8" stroke="#d4ff00" fill="none"
-            strokeWidth="2.5" strokeDasharray="40" strokeDashoffset="40"
-            style={{ animation: 'drawCheck 0.4s 0.45s ease forwards' }}>
+        <div style={{ width:'76px', height:'76px', border:'1px solid #3DAA6A', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 2rem', animation:'popIn .5s cubic-bezier(.34,1.56,.64,1) both' }}>
+          <svg viewBox="0 0 40 40" width="28" height="28" stroke="#3DAA6A" fill="none" strokeWidth="2.5"
+            strokeDasharray="40" strokeDashoffset="40" style={{ animation:'drawCheck .4s .45s ease forwards' }}>
             <polyline points="8,20 16,28 32,12"/>
           </svg>
         </div>
 
-        <h1 className="font-bebas text-[64px] text-acid tracking-[0.03em] leading-[0.9] mb-3">
-          PAYMENT<br/>CONFIRMED
+        <div style={{ fontSize:'.54rem', letterSpacing:'.4em', textTransform:'uppercase', color:'#3DAA6A', marginBottom:'1rem' }}>
+          ▶ Payment Confirmed
+        </div>
+        <h1 style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:'clamp(2rem,5vw,3.5rem)', lineHeight:1.05, marginBottom:'1rem' }}>
+          Your report<br/><em style={{ fontStyle:'italic', color:'var(--dim)' }}>is unlocked.</em>
         </h1>
-        <p className="font-mono text-[13px] text-muted1 mb-10 leading-[1.9]">
-          Your full report is ready. Check your inbox for a copy.
+        <p style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'400px', margin:'0 auto 3rem' }}>
+          Full analysis, brand identity kit, GTM playbook, and risk register. The designed PDF includes everything formatted for sharing and printing.
         </p>
 
-        {/* Receipt */}
-        <div className="bg-s1 border border-border p-7 text-left mb-6">
+        {/* Order summary */}
+        <div style={{ border:'1px solid rgba(255,255,255,.07)', background:'var(--surface)', padding:'1.6rem', textAlign:'left', marginBottom:'2.5rem' }}>
+          <div style={{ fontSize:'.54rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1rem', display:'flex', alignItems:'center', gap:'.5rem' }}>
+            <span style={{ display:'block', width:'14px', height:'1px', background:'var(--red)' }}/>Order Details
+          </div>
           {[
-            ['Order ID',  `#VBL-${params.id.substring(0,8).toUpperCase()}`],
-            ['Product',   `Viabl ${tier.name}`],
-            ['Amount',    `$${tier.price}.00`],
-            ['Session',   sessionId ? sessionId.substring(0,18)+'...' : '—'],
-          ].map(([k, v]) => (
-            <div key={k} className="flex justify-between py-2.5 border-b border-border last:border-0">
-              <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted2">{k}</span>
-              <span className={`font-mono text-[12px] ${k==='Amount'?'text-acid':''}`}>{v}</span>
+            ['Report ID',  `#${params.id.substring(0,8).toUpperCase()}`],
+            ['Plan',       tier.name],
+            ['Amount',     `$${tier.price}`],
+            ['Delivery',   'Instant · Web + PDF'],
+          ].map(([k,v]) => (
+            <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'.55rem 0', borderBottom:'1px solid rgba(255,255,255,.05)' }}>
+              <span style={{ fontSize:'.62rem', color:'var(--dim)' }}>{k}</span>
+              <span style={{ fontSize:'.62rem', color:'var(--white)', fontFamily:"'DM Mono',monospace" }}>{v}</span>
             </div>
           ))}
         </div>
 
-        {/* PDF download */}
-        <div className="bg-acid/4 border border-acid/18 p-6 flex items-center justify-between mb-6">
-          <div className="text-left">
-            <div className="font-mono text-[13px] mb-1">
-              Viabl_Report_{params.id.substring(0,8)}.pdf
-            </div>
-            <div className="font-mono text-[10px] text-muted2">
-              {pdfReady ? '✓ Downloaded' : 'Ready to download'}
-            </div>
-          </div>
-          <button
-            onClick={handleDownloadPDF}
-            className="bg-acid text-black font-bebas text-[17px] tracking-[0.1em] px-6 py-3 transition-all hover:-translate-y-px"
-          >
-            ↓ DOWNLOAD
+        {/* Actions */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'.8rem', maxWidth:'320px', margin:'0 auto' }}>
+
+          <button onClick={handleDownload} disabled={dlState==='loading'}
+            style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.88rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', border:'none', padding:'1rem', cursor: dlState==='loading'?'not-allowed':'pointer', opacity: dlState==='loading'?.6:1, transition:'transform .2s', width:'100%' }}
+            onMouseEnter={e=>{if(dlState!=='loading')(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
+            onMouseLeave={e=>(e.currentTarget as HTMLElement).style.transform='none'}>
+            {dlState==='loading' ? 'Generating PDF...' : dlState==='done' ? '✓ Downloaded' : '↓ Download PDF Report'}
           </button>
-        </div>
 
-        {/* Brand next step — show only for founder_pack / launch_kit */}
-        {(selectedTier === 'founder_pack' || selectedTier === 'launch_kit') && (
-          <div className="bg-acid/4 border border-acid/18 p-6 text-left mb-6">
-            <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-acid mb-2">Next Step Unlocked</div>
-            <div className="font-bebas text-[22px] tracking-[0.04em] mb-2">YOUR BRAND IDENTITY IS READY</div>
-            <div className="font-mono text-[12px] text-muted1 mb-4">
-              Logos, colors, typography, voice, and social assets — generated from your idea.
-            </div>
-            <Link
-              href={`/brand/${params.id}`}
-              className="bg-acid text-black font-bebas text-[17px] tracking-[0.1em] px-6 py-3 inline-block hover:-translate-y-px transition-all"
-            >
-              VIEW BRAND GUIDE →
-            </Link>
-          </div>
-        )}
-
-        <div className="flex gap-2.5 justify-center">
-          <Link href="/analyze" className="bg-transparent text-muted1 border border-border2 font-mono text-[10px] px-5 py-3 hover:text-text hover:border-muted1">
-            ← Analyze Another
+          <Link href={`/results/${params.id}`}
+            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.65rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
+            onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.3)';(e.currentTarget as HTMLElement).style.color='var(--white)'}}
+            onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.1)';(e.currentTarget as HTMLElement).style.color='var(--dim)'}}>
+            View Report Online →
           </Link>
-          <Link href={`/results/${params.id}`} className="bg-transparent text-muted1 border border-border2 font-mono text-[10px] px-5 py-3 hover:text-text hover:border-muted1">
-            View Report
+
+          <Link href={`/brand/${params.id}`}
+            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.65rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
+            onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(200,16,46,.4)';(e.currentTarget as HTMLElement).style.color='var(--white)'}}
+            onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.1)';(e.currentTarget as HTMLElement).style.color='var(--dim)'}}>
+            View Brand Identity Kit →
+          </Link>
+
+          <Link href="/"
+            style={{ fontSize:'.58rem', color:'var(--dim)', textDecoration:'none', textAlign:'center', letterSpacing:'.1em', marginTop:'.3rem', transition:'color .2s', display:'block' }}
+            onMouseEnter={e=>(e.currentTarget as HTMLElement).style.color='var(--white)'}
+            onMouseLeave={e=>(e.currentTarget as HTMLElement).style.color='var(--dim)'}>
+            Analyze another idea →
           </Link>
         </div>
       </div>
-      <style>{`
-        @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
-      `}</style>
     </main>
   )
 }

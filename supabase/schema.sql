@@ -68,3 +68,6 @@ alter table orders   enable row level security;
 
 create policy "public read analyses" on analyses for select using (true);
 create policy "public read orders"   on orders   for select using (true);
+
+-- ─── ADD BRAND KIT COLUMN (run if upgrading existing DB) ──────────────────────
+alter table analyses add column if not exists brand_kit jsonb;

@@ -1,15 +1,52 @@
 import type { Metadata, Viewport } from 'next'
-import { Bebas_Neue, DM_Mono } from 'next/font/google'
 import './globals.css'
-const bebas = Bebas_Neue({ weight:'400', subsets:['latin'], variable:'--font-bebas', display:'swap' })
-const mono = DM_Mono({ weight:['300','400','500'], subsets:['latin'], variable:'--font-dm-mono', display:'swap' })
+import { Cursor } from '@/components/ui/Cursor'
+
 export const metadata: Metadata = {
   title: 'Viabl — Know Before You Build',
-  description: 'AI-powered business viability analysis in 60 seconds.',
+  description: 'AI-powered business viability analysis in 60 seconds. Market size, competition, risks, and a complete brand identity kit.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://viabl.co'),
-  icons: { icon: '/favicon.svg' },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'Viabl — Know Before You Build',
+    description: 'AI-powered business viability analysis in 60 seconds.',
+    url: 'https://viabl.co',
+    siteName: 'Viabl',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Viabl — Know Before You Build',
+    description: 'AI-powered business viability analysis in 60 seconds.',
+  },
 }
-export const viewport: Viewport = { width:'device-width', initialScale:1, maximumScale:1, themeColor:'#0e0c0a' }
+
+export const viewport: Viewport = {
+  width: 'device-width', initialScale: 1, maximumScale: 1, themeColor: '#050505'
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en" className={`${bebas.variable} ${mono.variable}`}><body>{children}</body></html>
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
+        <Cursor />
+        {children}
+      </body>
+    </html>
+  )
 }

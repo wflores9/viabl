@@ -55,9 +55,11 @@ export async function POST(req: NextRequest) {
       try {
         await sendReportEmail(
           session.customer_details.email,
-          session.customer_details.name || '',
-          analysisId,
-          confirmUrl || `${process.env.NEXT_PUBLIC_APP_URL}/confirm/${analysisId}`
+          0,
+          'GO',
+          'Your analysis is ready',
+          confirmUrl || `${process.env.NEXT_PUBLIC_APP_URL}/confirm/${analysisId}`,
+          'report'
         )
       } catch (err) {
         console.error('[webhook] email failed:', err)

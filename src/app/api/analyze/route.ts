@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     if (!body.ideaText || body.ideaText.trim().length < 20)
       return NextResponse.json({ error: 'Please describe your idea in more detail.' }, { status: 400 })
 
-    const { result, raw } = await runAnalysis(body)
+    const { result, raw } = await runAnalysis(body as any)
     const analysisId = await tryDB(body, result, raw)
 
     return NextResponse.json({ analysisId, status: 'complete', result })

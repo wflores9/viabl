@@ -1,63 +1,101 @@
 'use client'
 import { useViablStore } from '@/store/viabl'
-import { INDUSTRIES } from '@/types'
-export function IntakeForm() {
-  const { ideaText, industry, target, setInput } = useViablStore()
-  return (
-    <div className="relative">
-      <div className="absolute pointer-events-none" style={{ top:'-60px',left:'-40px',right:'-40px',bottom:'-60px', background:'radial-gradient(ellipse at 50% 40%,rgba(212,255,0,0.04) 0%,transparent 70%)' }}/>
-      <div className="accent-line"/>
-      <div className="relative" style={{ background:'var(--s1)', border:'1px solid var(--border)', padding:'36px 32px' }}>
-        <div className="absolute bottom-0 right-0 pointer-events-none" style={{ width:'60px',height:'60px',borderRight:'1px solid rgba(212,255,0,0.08)',borderBottom:'1px solid rgba(212,255,0,0.08)' }}/>
-        <div className="absolute top-0 left-0 pointer-events-none" style={{ width:'40px',height:'40px',borderLeft:'1px solid rgba(212,255,0,0.08)',borderTop:'1px solid rgba(212,255,0,0.08)' }}/>
+import { INDUSTRIES, BUSINESS_MODELS, GEOGRAPHIES, STAGES } from '@/types'
 
-        <div className="mb-2">
-          <div className="font-mono text-[9px] tracking-[0.22em] uppercase flex items-center gap-3 mb-3" style={{ color:'var(--acid)' }}>
-            YOUR BUSINESS IDEA
-            <div style={{ flex:1,height:'1px',background:'linear-gradient(90deg,var(--border),transparent)' }}/>
-          </div>
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-[2px] transition-all duration-300"
-              style={{ background:ideaText.length>0?'linear-gradient(180deg,var(--acid),var(--acid2))':'var(--border2)', boxShadow:ideaText.length>0?'0 0 8px rgba(212,255,0,0.3)':'none' }}/>
-            <textarea value={ideaText} onChange={e=>setInput('ideaText',e.target.value)}
-              placeholder="e.g. A subscription app that helps restaurant owners track permits and licenses..."
-              style={{ width:'100%',background:ideaText.length>0?'rgba(212,255,0,0.02)':'var(--bg)',border:'none',borderBottom:`1px solid ${ideaText.length>0?'rgba(212,255,0,0.15)':'var(--border2)'}`,color:'var(--text)',fontFamily:'var(--font-dm-mono),monospace',fontSize:'14px',lineHeight:'1.8',padding:'16px 16px 16px 20px',outline:'none',resize:'none',height:'130px',transition:'all 0.25s ease',WebkitAppearance:'none',appearance:'none' }}/>
-            {ideaText.length > 0 && (
-              <div className="absolute bottom-2 right-3 font-mono text-[9px]" style={{ color:ideaText.length>=20?'var(--ok)':'var(--warn)' }}>
-                {ideaText.length>=20?'✓':`${20-ideaText.length} more`}
-              </div>
-            )}
-          </div>
+const S = {
+  label: { fontSize:'.56rem', letterSpacing:'.32em', textTransform:'uppercase' as const, color:'var(--red)', marginBottom:'.7rem', display:'flex', alignItems:'center', gap:'.6rem' },
+  line:  { display:'block', width:'16px', height:'1px', background:'var(--red)' },
+}
+
+export function IntakeForm({ step = 1 }: { step?: number }) {
+  const { ideaText, industry, target, model, geography, stage, budget, notes, setInput } = useViablStore()
+
+  if (step === 1) return (
+    <div style={{ display:'flex', flexDirection:'column', gap:'1.6rem' }}>
+      <div>
+        <div style={S.label}><span style={S.line}/>Your Business Idea</div>
+        <textarea value={ideaText} onChange={e => setInput('ideaText', e.target.value)}
+          placeholder="Describe your idea. What does it do, who does it help, what problem does it solve? Be specific — better input = sharper analysis."
+          rows={5} style={{ width:'100%', resize:'none', borderLeft:'2px solid', borderLeftColor: ideaText.length >= 20 ? 'var(--red)' : 'rgba(255,255,255,.1)', paddingLeft:'1rem' }}/>
+        <div style={{ fontSize:'.58rem', color: ideaText.length >= 20 ? '#3DAA6A' : 'var(--dim)', marginTop:'.4rem', textAlign:'right' }}>
+          {ideaText.length >= 20 ? '✓ Good to go' : `${Math.max(20 - ideaText.length, 0)} more characters`}
         </div>
+      </div>
 
-        <div className="mb-2 mt-6">
-          <div className="font-mono text-[9px] tracking-[0.22em] uppercase flex items-center gap-3 mb-3" style={{ color:'var(--m2)' }}>
-            INDUSTRY
-            <div style={{ flex:1,height:'1px',background:'linear-gradient(90deg,var(--border),transparent)' }}/>
-          </div>
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background:industry?'var(--border2)':'var(--border)' }}/>
-            <select value={industry} onChange={e=>setInput('industry',e.target.value)}
-              style={{ width:'100%',background:industry?'rgba(26,23,20,0.8)':'var(--bg)',border:'none',borderBottom:`1px solid ${industry?'rgba(212,255,0,0.12)':'var(--border2)'}`,color:industry?'var(--text)':'var(--m2)',fontFamily:'var(--font-dm-mono),monospace',fontSize:'14px',padding:'14px 40px 14px 20px',outline:'none',appearance:'none',WebkitAppearance:'none',cursor:'pointer',transition:'all 0.2s' }}>
-              <option value="">Select industry...</option>
-              {INDUSTRIES.map(ind=><option key={ind} value={ind}>{ind}</option>)}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.2rem' }}>
+        <div>
+          <div style={S.label}><span style={S.line}/>Industry</div>
+          <div style={{ position:'relative' }}>
+            <select value={industry} onChange={e => setInput('industry', e.target.value)} style={{ paddingRight:'2.5rem' }}>
+              <option value="">Select...</option>
+              {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
             </select>
-            <div className="absolute right-4 top-1/2 pointer-events-none" style={{ transform:'translateY(-50%)',color:'var(--m2)',fontSize:'10px' }}>▼</div>
+            <span style={{ position:'absolute', right:'1rem', top:'50%', transform:'translateY(-50%)', color:'var(--dim)', fontSize:'.65rem', pointerEvents:'none' }}>▼</span>
           </div>
         </div>
+        <div>
+          <div style={S.label}><span style={S.line}/>Target Customer</div>
+          <input type="text" value={target} onChange={e => setInput('target', e.target.value)} placeholder="e.g. Solo founders, SMB owners..."/>
+        </div>
+      </div>
+    </div>
+  )
 
-        <div className="mt-6">
-          <div className="font-mono text-[9px] tracking-[0.22em] uppercase flex items-center gap-3 mb-3" style={{ color:'var(--m2)' }}>
-            TARGET CUSTOMER
-            <div style={{ flex:1,height:'1px',background:'linear-gradient(90deg,var(--border),transparent)' }}/>
-          </div>
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background:target?'var(--border2)':'var(--border)' }}/>
-            <input type="text" value={target} onChange={e=>setInput('target',e.target.value)}
-              placeholder="e.g. Restaurant owners, SMEs, freelancers..."
-              style={{ width:'100%',background:target?'rgba(26,23,20,0.8)':'var(--bg)',border:'none',borderBottom:`1px solid ${target?'rgba(212,255,0,0.12)':'var(--border2)'}`,color:'var(--text)',fontFamily:'var(--font-dm-mono),monospace',fontSize:'14px',padding:'14px 16px 14px 20px',outline:'none',transition:'all 0.2s',WebkitAppearance:'none',appearance:'none' }}/>
+  if (step === 2) return (
+    <div style={{ display:'flex', flexDirection:'column', gap:'1.6rem' }}>
+      <div>
+        <div style={S.label}><span style={S.line}/>Revenue Model</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'2px', background:'rgba(255,255,255,.05)' }}>
+          {BUSINESS_MODELS.map(m => (
+            <button key={m.label} onClick={() => setInput('model', m.label)}
+              style={{ background: model === m.label ? 'rgba(200,16,46,.15)' : 'var(--surface)', border:'none', padding:'1.2rem 1.4rem', textAlign:'left', cursor:'pointer', borderLeft:`2px solid ${model === m.label ? 'var(--red)' : 'transparent'}`, transition:'all .2s' }}>
+              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.9rem', letterSpacing:'.08em', textTransform:'uppercase', color: model === m.label ? 'var(--white)' : 'var(--dim)', marginBottom:'.2rem' }}>{m.label}</div>
+              <div style={{ fontSize:'.6rem', color:'var(--dim)' }}>{m.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.2rem' }}>
+        <div>
+          <div style={S.label}><span style={S.line}/>Geography</div>
+          <div style={{ position:'relative' }}>
+            <select value={geography} onChange={e => setInput('geography', e.target.value)} style={{ paddingRight:'2.5rem' }}>
+              <option value="">Select...</option>
+              {GEOGRAPHIES.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <span style={{ position:'absolute', right:'1rem', top:'50%', transform:'translateY(-50%)', color:'var(--dim)', fontSize:'.65rem', pointerEvents:'none' }}>▼</span>
           </div>
         </div>
+        <div>
+          <div style={S.label}><span style={S.line}/>Monthly Budget</div>
+          <input type="number" value={budget || ''} onChange={e => setInput('budget', parseInt(e.target.value) || 0)} placeholder="e.g. 5000"/>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:'1.6rem' }}>
+      <div>
+        <div style={S.label}><span style={S.line}/>Current Stage</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'2px', background:'rgba(255,255,255,.05)' }}>
+          {STAGES.map(s => (
+            <button key={s.name} onClick={() => setInput('stage', s.name)}
+              style={{ background: stage === s.name ? 'rgba(200,16,46,.15)' : 'var(--surface)', border:'none', padding:'1.2rem 1.4rem', textAlign:'left', cursor:'pointer', borderLeft:`2px solid ${stage === s.name ? 'var(--red)' : 'transparent'}`, transition:'all .2s', display:'flex', alignItems:'center', gap:'.8rem' }}>
+              <span style={{ fontSize:'1.2rem' }}>{s.icon}</span>
+              <div>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.88rem', letterSpacing:'.08em', textTransform:'uppercase', color: stage === s.name ? 'var(--white)' : 'var(--dim)' }}>{s.name}</div>
+                <div style={{ fontSize:'.6rem', color:'var(--dim)' }}>{s.desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div style={S.label}><span style={S.line}/>Biggest Concern <span style={{ color:'var(--dim)', marginLeft:'.3rem' }}>(optional)</span></div>
+        <textarea value={notes} onChange={e => setInput('notes', e.target.value)}
+          placeholder="What worries you most about this idea? Helps sharpen the risk analysis."
+          rows={3} style={{ resize:'none' }}/>
       </div>
     </div>
   )
