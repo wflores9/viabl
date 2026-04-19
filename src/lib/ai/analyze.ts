@@ -3,27 +3,62 @@ import Exa from 'exa-js'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-async function getMarketContext(ideaText: string, industry: string, target: string) {
+async function getMarketContext(ideaText: string, industry: string) {
   if (!process.env.EXA_API_KEY) return null
   try {
     const exa = new Exa(process.env.EXA_API_KEY)
-    const [competitors, marketData] = await Promise.all([
-      exa.searchAndContents(
-        `${industry} startup companies competing with "${ideaText.substring(0, 60)}"`,
-        { numResults: 5, highlights: true, summary: true }
-      ),
-      exa.searchAndContents(
-        `${industry} market size revenue growth 2024 2025`,
-        { numResults: 3, highlights: true, summary: true }
-      )
+
+    const [competitors, market] = await Promise.all([
+      // Structured competitor data using outputSchema
+      exa.search(`${industry} startup companies apps tools "${ideaText.substring(0,50)}"`, {
+        type: 'auto',
+        numResults: 5,
+        outputSchema: {
+          type: 'object',
+          required: ['competitors'],
+          properties: {
+            competitors: {
+              type: 'array',
+              description: 'List of competing products or companies',
+              items: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                  name: { type: 'string', description: 'Company or product name' },
+                  description: { type: 'string', description: 'What they do and their positioning' }
+                }
+              }
+            }
+          }
+        },
+        contents: { highlights: { maxCharacters: 4000 } }
+      }),
+      // Structured market size data
+      exa.search(`${industry} market size revenue growth rate 2025 2026`, {
+        type: 'auto',
+        numResults: 3,
+        outputSchema: {
+          type: 'object',
+          required: ['market_size', 'growth_rate'],
+          properties: {
+            market_size: { type: 'string', description: 'Total addressable market size in dollars' },
+            growth_rate: { type: 'string', description: 'Annual growth rate percentage' },
+            key_trends: { type: 'string', description: 'Main trends driving the market' }
+          }
+        },
+        contents: { highlights: { maxCharacters: 4000 } }
+      })
     ])
-    const competitorList = competitors.results.map(r =>
-      `- ${r.title}: ${r.summary || r.highlights?.[0] || r.url}`
-    ).join('\n')
-    const marketInfo = marketData.results.map(r =>
-      `- ${r.title}: ${r.summary || r.highlights?.[0] || ''}`
-    ).join('\n')
-    return { competitorList, marketInfo }
+
+    const competitorData = competitors.output?.content as any
+    const marketData = market.output?.content as any
+
+    return {
+      competitors: competitorData?.competitors || [],
+      marketSize: marketData?.market_size || '',
+      growthRate: marketData?.growth_rate || '',
+      keyTrends: marketData?.key_trends || ''
+    }
   } catch (err) {
     console.warn('[exa] search failed:', err)
     return null
@@ -34,9 +69,13 @@ export async function runAnalysis(params: {
   ideaText: string; industry: string; target: string; model: string;
   geography: string; stage: string; budget: number; notes?: string
 }) {
-  const marketContext = await getMarketContext(params.ideaText, params.industry, params.target)
+  const marketContext = await getMarketContext(params.ideaText, params.industry)
 
-  const prompt = `You are a senior venture analyst and startup advisor. Analyze this business idea with brutal honesty.
+  const competitorList = marketContext?.competitors?.length
+    ? marketContext.competitors.map((c: any) => `- ${c.name}: ${c.description || ''}`).join('\n')
+    : null
+
+  const prompt = `You are a senior venture analyst. Analyze this business idea with brutal honesty.
 
 BUSINESS IDEA: ${params.ideaText}
 INDUSTRY: ${params.industry}
@@ -45,25 +84,27 @@ BUSINESS MODEL: ${params.model}
 GEOGRAPHY: ${params.geography}
 FOUNDER STAGE: ${params.stage}
 AVAILABLE BUDGET: $${params.budget.toLocaleString()}
-${params.notes ? `ADDITIONAL NOTES: ${params.notes}` : ''}
+${params.notes ? `NOTES: ${params.notes}` : ''}
 ${marketContext ? `
-REAL COMPETITOR DATA (from live web research):
-${marketContext.competitorList}
+LIVE MARKET DATA (from real-time web research):
+Market Size: ${marketContext.marketSize}
+Growth Rate: ${marketContext.growthRate}
+Key Trends: ${marketContext.keyTrends}
 
-REAL MARKET DATA:
-${marketContext.marketInfo}
+REAL COMPETITORS FOUND:
+${competitorList || 'No direct competitors found — could indicate blue ocean or very early market'}
 ` : ''}
 
-Provide a comprehensive viability analysis. Return ONLY valid JSON matching this exact structure:
+Return ONLY valid JSON:
 {
-  "overall_score": <number 0-100>,
-  "verdict": <"GO" | "MAYBE" | "NO">,
-  "idea_summary": <string, 4-6 words>,
-  "one_liner": <string, one compelling sentence in quotes>,
-  "summary": <string, 2-3 sentences, brutal honest assessment>,
-  "market_size": <string, specific numbers if available>,
-  "demand_signal": <string, evidence of real demand>,
-  "competition": <string, specific named competitors if found>,
+  "overall_score": <0-100>,
+  "verdict": <"GO"|"MAYBE"|"NO">,
+  "idea_summary": <4-6 words>,
+  "one_liner": <one sentence in quotes>,
+  "summary": <2-3 sentences brutal honest assessment>,
+  "market_size": <specific numbers from live data if available>,
+  "demand_signal": <evidence of real demand>,
+  "competition": <named competitors from live research>,
   "metrics": {
     "Market Demand": <0-100>,
     "Competition": <0-100>,
@@ -75,8 +116,8 @@ Provide a comprehensive viability analysis. Return ONLY valid JSON matching this
     "Tech Feasibility": <0-100>,
     "Founder-Market Fit": <0-100>
   },
-  "revenue_models": [<string>, ...],
-  "mrr_potential": <string, specific $ estimates>,
+  "revenue_models": [<string>],
+  "mrr_potential": <specific $ estimates>,
   "top_risks": [<string>, <string>, <string>],
   "next_steps": [<string>, <string>, <string>],
   "dimensions": [],
@@ -92,5 +133,5 @@ Provide a comprehensive viability analysis. Return ONLY valid JSON matching this
   const text = response.content[0].type === 'text' ? response.content[0].text : ''
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('No valid JSON in response')
-  return JSON.parse(jsonMatch[0])
+  return { result: JSON.parse(jsonMatch[0]), raw: text }
 }
