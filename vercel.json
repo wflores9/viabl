@@ -1,22 +1,3 @@
 {
-  "functions": {
-    "app/api/analyze/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/pdf/[id]/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/launchkit/[id]/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/pitchdeck/[id]/route.ts": {
-      "maxDuration": 60
-    },
-    "app/api/brand/[id]/route.ts": {
-      "maxDuration": 30
-    },
-    "app/api/gtm/[id]/route.ts": {
-      "maxDuration": 30
-    }
-  }
+  "framework": "nextjs"
 }
