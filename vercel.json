@@ -1,21 +1,21 @@
 {
   "functions": {
-    "src/app/api/analyze/route.ts": {
+    "app/api/analyze/route.ts": {
       "maxDuration": 60
     },
-    "src/app/api/pdf/[id]/route.ts": {
+    "app/api/pdf/[id]/route.ts": {
       "maxDuration": 60
     },
-    "src/app/api/launchkit/[id]/route.ts": {
+    "app/api/launchkit/[id]/route.ts": {
       "maxDuration": 60
     },
-    "src/app/api/pitchdeck/[id]/route.ts": {
+    "app/api/pitchdeck/[id]/route.ts": {
       "maxDuration": 60
     },
-    "src/app/api/brand/[id]/route.ts": {
+    "app/api/brand/[id]/route.ts": {
       "maxDuration": 30
     },
-    "src/app/api/gtm/[id]/route.ts": {
+    "app/api/gtm/[id]/route.ts": {
       "maxDuration": 30
     }
   }
