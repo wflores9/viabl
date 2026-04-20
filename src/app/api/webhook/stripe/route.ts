@@ -53,11 +53,23 @@ export async function POST(req: NextRequest) {
     // 3. Send email
     if (session.customer_details?.email && analysisId) {
       try {
+        // Pull real score/verdict from DB
+        let score = 0, verdict = 'GO', ideaSummary = 'Your analysis is ready'
+        try {
+          const { getAnalysis } = await import('@/lib/db/analyses')
+          const analysis = await getAnalysis(analysisId)
+          if (analysis) {
+            score = analysis.overall_score || 0
+            verdict = analysis.verdict || 'GO'
+            ideaSummary = analysis.idea_summary || 'Your analysis is ready'
+          }
+        } catch (e) { console.warn('[webhook] could not fetch analysis:', e) }
+
         await sendReportEmail(
           session.customer_details.email,
-          0,
-          'GO',
-          'Your analysis is ready',
+          score,
+          verdict,
+          ideaSummary,
           confirmUrl || `${process.env.NEXT_PUBLIC_APP_URL}/confirm/${analysisId}`,
           'report'
         )
