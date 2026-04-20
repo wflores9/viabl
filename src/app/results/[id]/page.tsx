@@ -173,6 +173,35 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
           {/* Unlock overlay */}
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom,transparent,rgba(5,5,5,.75) 20%,rgba(5,5,5,.97) 35%)', display:'flex', alignItems:'flex-end', justifyContent:'center', paddingBottom:'2.5rem' }}>
             <div style={{ textAlign:'center' }}>
+              {/* AI Mascot */}
+              <div style={{ marginBottom:'1.2rem', display:'flex', justifyContent:'center' }}>
+                <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Body */}
+                  <rect x="18" y="28" width="36" height="30" rx="4" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  {/* Head */}
+                  <rect x="22" y="12" width="28" height="22" rx="4" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  {/* Eyes */}
+                  <rect x="27" y="18" width="7" height="5" rx="1" fill="#C8102E" opacity="0.9"/>
+                  <rect x="38" y="18" width="7" height="5" rx="1" fill="#C8102E" opacity="0.9"/>
+                  {/* Mouth */}
+                  <rect x="29" y="27" width="14" height="2" rx="1" fill="#C8102E" opacity="0.5"/>
+                  {/* Antenna */}
+                  <line x1="36" y1="12" x2="36" y2="6" stroke="#C8102E" strokeWidth="1.5"/>
+                  <circle cx="36" cy="5" r="2.5" fill="#C8102E"/>
+                  {/* Circuit lines on body */}
+                  <line x1="26" y1="40" x2="46" y2="40" stroke="#C8102E" strokeWidth="1" opacity="0.3"/>
+                  <line x1="26" y1="46" x2="38" y2="46" stroke="#C8102E" strokeWidth="1" opacity="0.3"/>
+                  <circle cx="46" cy="46" r="2" fill="#C8102E" opacity="0.4"/>
+                  {/* Arms */}
+                  <rect x="8" y="32" width="10" height="4" rx="2" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  <rect x="54" y="32" width="10" height="4" rx="2" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  {/* Legs */}
+                  <rect x="24" y="58" width="8" height="10" rx="2" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  <rect x="40" y="58" width="8" height="10" rx="2" fill="#1a1714" stroke="#C8102E" strokeWidth="1.5"/>
+                  {/* Glow effect */}
+                  <rect x="22" y="12" width="28" height="22" rx="4" fill="#C8102E" opacity="0.03"/>
+                </svg>
+              </div>
               <div style={{ fontSize:'.75rem', letterSpacing:'.4em', textTransform:'uppercase', color:'var(--red)', marginBottom:'.8rem' }}>▶ Full Report Locked</div>
               <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'clamp(1.4rem,3vw,2.5rem)', fontWeight:900, marginBottom:'.5rem' }}>Unlock Everything →</div>
               <p style={{ fontSize:'.88rem', color:'var(--dim)', maxWidth:'420px', margin:'0 auto 1.5rem', lineHeight:1.75 }}>GTM playbook, brand identity kit, risk register, and pitch narrative. Instant delivery.</p>
@@ -200,7 +229,7 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
               </div>
               <button onClick={() => handleSelectTier(tier.id as Tier)} disabled={tier.id==='free'}
                 className={tier.id==='free'?'':'btn-cine'}
-                style={{ width:'100%', padding:'.85rem', fontFamily:tier.id==='free'?'var(--font-dm-mono),monospace':'var(--font-barlow),sans-serif', fontWeight:tier.id==='free'?400:700, fontSize:tier.id==='free'?'.65rem':'.82rem', letterSpacing:'.15em', textTransform:'uppercase', cursor:tier.id==='free'?'default':'pointer', background:tier.id==='free'?'transparent':'var(--red)', color:'var(--dim)', border: tier.id==='free'?'1px solid rgba(255,255,255,.08)':'none', opacity:tier.id==='free'?.6:1 }}>
+                style={{ width:'100%', padding:'.85rem', fontFamily:tier.id==='free'?'var(--font-dm-mono),monospace':'var(--font-barlow),sans-serif', fontWeight:tier.id==='free'?400:700, fontSize:tier.id==='free'?'.65rem':'.82rem', letterSpacing:'.15em', textTransform:'uppercase', cursor:tier.id==='free'?'default':'pointer', background:tier.id==='free'?'transparent':'var(--red)', color:tier.id==='free'?'var(--dim)':'#ffffff', border: tier.id==='free'?'1px solid rgba(255,255,255,.08)':'none', opacity:tier.id==='free'?.6:1 }}>
                 {tier.id==='free' ? 'Current Plan' : `Unlock → $${tier.price}`}
               </button>
             </div>

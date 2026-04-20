@@ -118,7 +118,7 @@ export default function LandingPage() {
         <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(5rem,18vw,14rem)', fontWeight:900, fontStyle:'italic', color:'var(--white)', letterSpacing:'-.03em', opacity:0, animation:'iw .7s ease .3s forwards' }}>
           IDEA<span style={{ color:'var(--red)' }}>?</span>
         </div>
-        <div style={{ fontSize:'.55rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--dim)', marginTop:'1.6rem', opacity:0, animation:'iw .5s ease 1.1s forwards' }}>
+        <div style={{ fontSize:'.75rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--dim)', marginTop:'1.6rem', opacity:0, animation:'iw .5s ease 1.1s forwards' }}>
           viabl · analysis engine · v2.1
         </div>
         <div style={{ width:0, height:'1px', background:'var(--red)', marginTop:'1.2rem', animation:'ibar .7s ease 1.7s forwards' }}/>
@@ -128,7 +128,7 @@ export default function LandingPage() {
       <section style={{ minHeight:'100vh', display:'flex', flexDirection:'column', justifyContent:'center', padding:'8rem clamp(1.5rem,7vw,7rem) 4rem', position:'relative', overflow:'hidden' }}>
         <div ref={glowRef} style={{ position:'absolute', top:'-10%', left:'50%', transform:'translateX(-50%)', width:'800px', height:'800px', background:'radial-gradient(ellipse,rgba(200,16,46,.12) 0%,transparent 68%)', pointerEvents:'none' }}/>
 
-        <div style={{ fontSize:'.56rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.8rem', display:'flex', alignItems:'center', gap:'.6rem', opacity: heroIn ? 1 : 0, transition:'opacity .6s ease .1s' }}>
+        <div style={{ fontSize:'.75rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.8rem', display:'flex', alignItems:'center', gap:'.6rem', opacity: heroIn ? 1 : 0, transition:'opacity .6s ease .1s' }}>
           <span style={{ display:'inline-block', width:'6px', height:'6px', borderRadius:'50%', background:'var(--red)', animation:'pulse 2s infinite' }}/>
           Analysis Engine Active · 3,800+ Ideas Scanned
         </div>
@@ -154,17 +154,17 @@ export default function LandingPage() {
           ))}
         </h1>
 
-        <p style={{ maxWidth:'440px', fontSize:'.76rem', lineHeight:1.9, color:'var(--dim)', marginBottom:'2.2rem', opacity: heroIn ? 1 : 0, transition:'opacity .7s ease .7s' }}>
+        <p style={{ maxWidth:'440px', fontSize:'.92rem', lineHeight:1.9, color:'var(--dim)', marginBottom:'2.2rem', opacity: heroIn ? 1 : 0, transition:'opacity .7s ease .7s' }}>
           Most founders build first, discover failure later. Viabl scans 9 critical dimensions and delivers a full verdict before you spend a dollar.
         </p>
 
         <div style={{ display:'flex', gap:'1.4rem', alignItems:'center', opacity: heroIn ? 1 : 0, transition:'opacity .7s ease .85s' }}>
-          <Link href="/analyze" style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.88rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', textDecoration:'none', padding:'1rem 2.6rem', display:'inline-block', transition:'transform .2s' }}
+          <Link href="/analyze" style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'1rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', textDecoration:'none', padding:'1rem 2.6rem', display:'inline-block', transition:'transform .2s' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform='none'}>
             Run Viabl Check →
           </Link>
-          <a href="#tension" style={{ fontSize:'.63rem', color:'var(--dim)', letterSpacing:'.1em', textDecoration:'none', display:'flex', alignItems:'center', gap:'.4rem', transition:'color .2s' }}
+          <a href="#tension" style={{ fontSize:'.82rem', color:'var(--dim)', letterSpacing:'.1em', textDecoration:'none', display:'flex', alignItems:'center', gap:'.4rem', transition:'color .2s' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.color='var(--white)'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.color='var(--dim)'}>
             <span style={{ color:'var(--red)' }}>→</span> Why this exists
@@ -174,7 +174,7 @@ export default function LandingPage() {
         {/* Aside stat */}
         <div style={{ position:'absolute', right:'5rem', top:'50%', transform:'translateY(-50%)', textAlign:'right', opacity: heroIn ? 1 : 0, transition:'opacity .7s ease 1s' }}>
           <span style={{ fontFamily:"'Playfair Display',serif", fontSize:'5rem', fontWeight:900, display:'block', lineHeight:1 }}>{heroPct}%</span>
-          <span style={{ fontSize:'.55rem', letterSpacing:'.16em', color:'var(--dim)', textTransform:'uppercase', lineHeight:1.8 }}>
+          <span style={{ fontSize:'.75rem', letterSpacing:'.16em', color:'var(--dim)', textTransform:'uppercase', lineHeight:1.8 }}>
             of startups fail<br/>before product-<br/>market fit
           </span>
         </div>
@@ -182,7 +182,7 @@ export default function LandingPage() {
         {/* Scroll indicator */}
         <div style={{ position:'absolute', bottom:'2rem', left:'50%', transform:'translateX(-50%)', display:'flex', flexDirection:'column', alignItems:'center', gap:'.5rem', opacity: heroIn ? 1 : 0, transition:'opacity .7s ease 1.1s' }}>
           <div style={{ width:'1px', height:'44px', background:'linear-gradient(to bottom,var(--red),transparent)', animation:'sp 2s ease-in-out infinite' }}/>
-          <span style={{ fontSize:'.5rem', letterSpacing:'.3em', color:'var(--dim)', textTransform:'uppercase' }}>scroll</span>
+          <span style={{ fontSize:'.72rem', letterSpacing:'.3em', color:'var(--dim)', textTransform:'uppercase' }}>scroll</span>
         </div>
       </section>
 
@@ -221,7 +221,7 @@ export default function LandingPage() {
             <h2 className="r" style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(2.5rem,4.5vw,4.8rem)', fontWeight:900, lineHeight:1.05, marginBottom:'1.4rem' }}>
               Four minutes.<br/>Full verdict.
             </h2>
-            <p className="r" style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'320px' }}>
+            <p className="r" style={{ fontSize:'.92rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'320px' }}>
               No consultants. No surveys. Deep intelligence delivered before you commit to anything.
             </p>
           </div>
@@ -236,7 +236,7 @@ export default function LandingPage() {
                 <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'2.8rem', fontWeight:900, color:'rgba(255,255,255,.06)', lineHeight:1, flexShrink:0, width:'42px' }}>{step.n}</div>
                 <div>
                   <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'1rem', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:'.5rem', color:'var(--white)' }}>{step.t}</div>
-                  <div style={{ fontSize:'.67rem', color:'var(--dim)', lineHeight:1.75 }}>{step.d}</div>
+                  <div style={{ fontSize:'.85rem', color:'var(--dim)', lineHeight:1.75 }}>{step.d}</div>
                 </div>
               </div>
             ))}
@@ -251,9 +251,9 @@ export default function LandingPage() {
             <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'var(--red)' }}/>
             <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'var(--gold)' }}/>
             <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#2a2a2a' }}/>
-            <span style={{ fontSize:'.56rem', color:'var(--dim)', letterSpacing:'.1em', margin:'0 auto' }}>viabl · analysis engine v2.1</span>
+            <span style={{ fontSize:'.75rem', color:'var(--dim)', letterSpacing:'.1em', margin:'0 auto' }}>viabl · analysis engine v2.1</span>
           </div>
-          <div ref={tbRef} style={{ padding:'1.4rem 1.6rem', minHeight:'240px', fontSize:'.68rem', lineHeight:2, overflowY:'auto', maxHeight:'340px' }}>
+          <div ref={tbRef} style={{ padding:'1.4rem 1.6rem', minHeight:'240px', fontSize:'1rem', lineHeight:2, overflowY:'auto', maxHeight:'340px' }}>
             {termLines.map((raw, i) => {
               const idx = raw.indexOf('|'); const c = raw.slice(0,idx); const t = raw.slice(idx+1)
               return <span key={i} style={{ display:'block', color:lc(c), fontWeight: c==='tv'?500:400 }}>{t}</span>
@@ -277,7 +277,7 @@ export default function LandingPage() {
           ].map((stat, i) => (
             <div key={stat.l} className="r" style={{ background:'var(--surface)', padding:'2.5rem 1.6rem', textAlign:'center', transitionDelay:`${i * .08}s` }}>
               <span style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(2.5rem,4.5vw,4.5rem)', fontWeight:900, display:'block', marginBottom:'.4rem' }}>{stat.n}</span>
-              <span style={{ fontSize:'.56rem', letterSpacing:'.2em', color:'var(--dim)', textTransform:'uppercase' }}>{stat.l}</span>
+              <span style={{ fontSize:'.75rem', letterSpacing:'.2em', color:'var(--dim)', textTransform:'uppercase' }}>{stat.l}</span>
             </div>
           ))}
         </div>
@@ -287,7 +287,7 @@ export default function LandingPage() {
       <section style={{ minHeight:'80vh', display:'flex', alignItems:'center', justifyContent:'center', textAlign:'center', background:'var(--black)', overflow:'hidden', position:'relative', padding:'5rem clamp(1.5rem,7vw,7rem)' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at center,rgba(200,16,46,.13) 0%,transparent 60%)' }}/>
         <div className="r" style={{ position:'relative', zIndex:1 }}>
-          <div style={{ fontSize:'.54rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.6rem', display:'flex', alignItems:'center', justifyContent:'center', gap:'.6rem' }}>
+          <div style={{ fontSize:'.72rem', letterSpacing:'.42em', textTransform:'uppercase', color:'var(--red)', marginBottom:'1.6rem', display:'flex', alignItems:'center', justifyContent:'center', gap:'.6rem' }}>
             <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>
             The Choice
             <span style={{ display:'block', width:'20px', height:'1px', background:'var(--red)' }}/>
@@ -297,7 +297,7 @@ export default function LandingPage() {
             <span style={{ display:'block', fontSize:'clamp(4rem,12vw,12rem)', color:'var(--white)', letterSpacing:'-.02em' }}>YOU BUILD.</span>
             <span style={{ display:'block', fontSize:'clamp(1.6rem,4vw,4rem)', fontStyle:'italic', color:'var(--red)' }}>or pay the tuition later.</span>
           </h2>
-          <p style={{ fontSize:'.68rem', color:'var(--dim)', marginBottom:'2.2rem', letterSpacing:'.06em' }}>
+          <p style={{ fontSize:'1rem', color:'var(--dim)', marginBottom:'2.2rem', letterSpacing:'.06em' }}>
             Free preview · 60 seconds · No signup required
           </p>
           <Link href="/analyze" style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'1rem', letterSpacing:'.25em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', textDecoration:'none', padding:'1.1rem 4rem', display:'inline-block', transition:'background .25s, color .25s' }}
@@ -305,7 +305,7 @@ export default function LandingPage() {
             onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background='var(--red)'; el.style.color='var(--white)' }}>
             Run Viabl Check →
           </Link>
-          <span style={{ display:'block', fontSize:'.54rem', color:'var(--dim)', marginTop:'1.2rem', letterSpacing:'.14em' }}>
+          <span style={{ display:'block', fontSize:'.72rem', color:'var(--dim)', marginTop:'1.2rem', letterSpacing:'.14em' }}>
             $19 to unlock the full report · Instant delivery · No fluff
           </span>
         </div>
@@ -313,19 +313,19 @@ export default function LandingPage() {
 
       {/* ── FOOTER ── */}
       <footer style={{ padding:'1.4rem clamp(1.5rem,7vw,7rem)', borderTop:'1px solid rgba(255,255,255,.07)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:800, fontSize:'.9rem', letterSpacing:'.14em', color:'var(--dim)' }}>
+        <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:800, fontSize:'1rem', letterSpacing:'.14em', color:'var(--dim)' }}>
           VIABL<em style={{ fontStyle:'normal', color:'var(--red)' }}>.</em>
         </div>
-        <div style={{ fontSize:'.54rem', color:'var(--dim)', letterSpacing:'.07em' }}>© 2026 Viabl — Know Before You Build</div>
+        <div style={{ fontSize:'.72rem', color:'var(--dim)', letterSpacing:'.07em' }}>© 2026 Viabl — Know Before You Build</div>
         <div style={{ display:'flex', gap:'1.6rem' }}>
-          {['Privacy','Terms'].map(l => (
-            <a key={l} href="#" style={{ fontSize:'.54rem', color:'var(--dim)', textDecoration:'none', letterSpacing:'.1em', transition:'color .2s' }}
+          {[['Privacy','/privacy'],['Terms','/terms']].map(([l,href]) => (
+            <a key={l} href={href} style={{ fontSize:'.72rem', color:'var(--dim)', textDecoration:'none', letterSpacing:'.1em', transition:'color .2s' }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.color='var(--white)'}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.color='var(--dim)'}>
               {l}
             </a>
           ))}
-          <Link href="/analyze" style={{ fontSize:'.54rem', color:'var(--dim)', textDecoration:'none', letterSpacing:'.1em', transition:'color .2s' }}
+          <Link href="/analyze" style={{ fontSize:'.72rem', color:'var(--dim)', textDecoration:'none', letterSpacing:'.1em', transition:'color .2s' }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.color='var(--white)'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.color='var(--dim)'}>
             Analyze →
@@ -376,7 +376,7 @@ function DimCard({ n, t, d, delay }: { n:string; t:string; d:string; delay:numbe
     <div className="dc" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{ background:'var(--surface)', padding:'1.8rem 1.6rem', position:'relative', overflow:'hidden', transitionDelay:`${delay}s` }}>
       <div style={{ position:'absolute', top:0, left:0, width:'100%', height:'2px', background:'var(--red)', transform: hov?'scaleX(1)':'scaleX(0)', transformOrigin:'left', transition:'transform .3s ease' }}/>
-      <div style={{ fontSize:'.54rem', letterSpacing:'.3em', color:'var(--red)', marginBottom:'.7rem' }}>{n}</div>
+      <div style={{ fontSize:'.72rem', letterSpacing:'.3em', color:'var(--red)', marginBottom:'.7rem' }}>{n}</div>
       <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.95rem', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:'.5rem', color:'var(--white)' }}>{t}</div>
       <div style={{ fontSize:'.64rem', color:'var(--dim)', lineHeight:1.75 }}>{d}</div>
     </div>
