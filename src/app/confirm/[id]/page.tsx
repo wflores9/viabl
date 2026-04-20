@@ -11,7 +11,7 @@ export default function ConfirmPage({ params }: { params: { id: string } }) {
   const { selectedTier }       = useViablStore()
   const [ready,    setReady]   = useState(false)
   const [dlState,  setDlState] = useState<'idle'|'loading'|'done'>('idle')
-  const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1]
+  const tier = TIERS.find(t => t.id === selectedTier) || TIERS[0]
 
   // Poll until analysis is confirmed in DB
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function ConfirmPage({ params }: { params: { id: string } }) {
         <h1 style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:'clamp(2rem,5vw,3.5rem)', lineHeight:1.05, marginBottom:'1rem' }}>
           Your report<br/><em style={{ fontStyle:'italic', color:'var(--dim)' }}>is unlocked.</em>
         </h1>
-        <p style={{ fontSize:'.7rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'400px', margin:'0 auto 3rem' }}>
+        <p style={{ fontSize:'.92rem', color:'var(--dim)', lineHeight:1.85, maxWidth:'400px', margin:'0 auto 3rem' }}>
           Full analysis, brand identity kit, GTM playbook, and risk register. The designed PDF includes everything formatted for sharing and printing.
         </p>
 
@@ -106,21 +106,21 @@ export default function ConfirmPage({ params }: { params: { id: string } }) {
         <div style={{ display:'flex', flexDirection:'column', gap:'.8rem', maxWidth:'320px', margin:'0 auto' }}>
 
           <button onClick={handleDownload} disabled={dlState==='loading'}
-            style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.88rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', border:'none', padding:'1rem', cursor: dlState==='loading'?'not-allowed':'pointer', opacity: dlState==='loading'?.6:1, transition:'transform .2s', width:'100%' }}
+            style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'1rem', letterSpacing:'.22em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', border:'none', padding:'1rem', cursor: dlState==='loading'?'not-allowed':'pointer', opacity: dlState==='loading'?.6:1, transition:'transform .2s', width:'100%' }}
             onMouseEnter={e=>{if(dlState!=='loading')(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
             onMouseLeave={e=>(e.currentTarget as HTMLElement).style.transform='none'}>
             {dlState==='loading' ? 'Generating PDF...' : dlState==='done' ? '✓ Downloaded' : '↓ Download PDF Report'}
           </button>
 
           <Link href={`/results/${params.id}`}
-            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.65rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
+            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.82rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
             onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.3)';(e.currentTarget as HTMLElement).style.color='var(--white)'}}
             onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.1)';(e.currentTarget as HTMLElement).style.color='var(--dim)'}}>
             View Report Online →
           </Link>
 
           <Link href={`/brand/${params.id}`}
-            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.65rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
+            style={{ fontFamily:"'DM Mono',monospace", fontSize:'.82rem', letterSpacing:'.15em', textTransform:'uppercase', color:'var(--dim)', textDecoration:'none', border:'1px solid rgba(255,255,255,.1)', padding:'.8rem', textAlign:'center', transition:'all .2s', display:'block' }}
             onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(200,16,46,.4)';(e.currentTarget as HTMLElement).style.color='var(--white)'}}
             onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,.1)';(e.currentTarget as HTMLElement).style.color='var(--dim)'}}>
             View Brand Identity Kit →

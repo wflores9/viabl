@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       return getAnalysis(params.id)
     })()
 
-    if (!analysis?.idea_summary) {
+    if (!analysis) {
       return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
     }
 
@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     }
 
     // Generate fresh
-    const brandKit = await generateBrandKit(analysis, analysis.idea_summary)
+    const brandKit = await generateBrandKit(analysis, analysis.idea_summary || analysis.summary || 'Business idea')
 
     // Cache to DB
     if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
