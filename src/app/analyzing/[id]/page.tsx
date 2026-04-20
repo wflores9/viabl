@@ -38,7 +38,7 @@ export default function AnalyzingPage({ params }: { params:{ id:string } }) {
 
       <div style={{ position:'relative', zIndex:1, maxWidth:'580px', margin:'0 auto', padding:'5rem 2rem 6rem', textAlign:'center' }}>
 
-        <div style={{ fontSize:'.54rem', letterSpacing:'.4em', textTransform:'uppercase', color: done ? '#3DAA6A' : 'var(--red)', marginBottom:'2rem', transition:'color .5s' }}>
+        <div style={{ fontSize:'.75rem', letterSpacing:'.4em', textTransform:'uppercase', color: done ? '#3DAA6A' : 'var(--red)', marginBottom:'2rem', transition:'color .5s' }}>
           {done ? '✓ Analysis Complete' : '▶ Analysis Engine Running'}
         </div>
 
@@ -55,7 +55,7 @@ export default function AnalyzingPage({ params }: { params:{ id:string } }) {
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:'clamp(1.6rem,4vw,3rem)', marginBottom:'.5rem', transition:'color .5s', color: done ? '#3DAA6A' : 'var(--white)' }}>
           {done ? 'Verdict ready.' : 'Scanning your idea...'}
         </h2>
-        <p style={{ fontSize:'.68rem', color:'var(--dim)', marginBottom:'2.5rem' }}>
+        <p style={{ fontSize:'.88rem', color:'var(--dim)', marginBottom:'2.5rem' }}>
           {done ? 'Preparing your report...' : 'Cross-referencing market intelligence corpus'}
         </p>
 
@@ -63,14 +63,14 @@ export default function AnalyzingPage({ params }: { params:{ id:string } }) {
         <div style={{ height:'2px', background:'rgba(255,255,255,.08)', marginBottom:'.6rem', overflow:'hidden', borderRadius:'1px' }}>
           <div style={{ height:'100%', background: done ? '#3DAA6A' : 'var(--red)', width:`${pct}%`, transition:'width .5s ease, background .5s' }}/>
         </div>
-        <div style={{ display:'flex', justifyContent:'space-between', fontSize:'.55rem', color:'var(--dim)', marginBottom:'2.5rem' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', fontSize:'.75rem', color:'var(--dim)', marginBottom:'2.5rem' }}>
           <span style={{ color: done ? '#3DAA6A' : 'var(--dim)', transition:'color .3s' }}>{msg}</span>
           <span>{pct}%</span>
         </div>
 
         {/* Task list */}
         <div style={{ border:'1px solid rgba(255,255,255,.07)', background:'#060606', textAlign:'left' }}>
-          <div style={{ padding:'.6rem 1rem', borderBottom:'1px solid rgba(255,255,255,.07)', background:'#0C0C0C', fontSize:'.54rem', letterSpacing:'.2em', color:'var(--dim)', textTransform:'uppercase' }}>
+          <div style={{ padding:'.6rem 1rem', borderBottom:'1px solid rgba(255,255,255,.07)', background:'#0C0C0C', fontSize:'.75rem', letterSpacing:'.2em', color:'var(--dim)', textTransform:'uppercase' }}>
             viabl · analysis engine v2.1
           </div>
           <div style={{ padding:'.5rem 0' }}>
@@ -79,8 +79,8 @@ export default function AnalyzingPage({ params }: { params:{ id:string } }) {
               return (
                 <div key={task.name} style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'.6rem 1.2rem', opacity: ts.status==='queued' ? .3 : 1, transition:'opacity .3s' }}>
                   <div style={{ width:'7px', height:'7px', borderRadius:'50%', flexShrink:0, transition:'background .3s', background: ts.status==='done' ? '#3DAA6A' : ts.status==='running' ? 'var(--red)' : 'rgba(255,255,255,.15)', animation: ts.status==='running' ? 'pulse .8s ease-in-out infinite' : 'none' }}/>
-                  <div style={{ flex:1, fontSize:'.65rem', color: ts.status==='done' ? 'var(--white)' : ts.status==='running' ? 'var(--white)' : 'var(--dim)', transition:'color .3s' }}>{task.name}</div>
-                  <div style={{ fontSize:'.56rem', letterSpacing:'.08em', color: ts.status==='done' ? '#3DAA6A' : ts.status==='running' ? 'var(--red)' : 'var(--dim)', textTransform:'uppercase', transition:'color .3s' }}>
+                  <div style={{ flex:1, fontSize:'.85rem', color: ts.status==='done' ? 'var(--white)' : ts.status==='running' ? 'var(--white)' : 'var(--dim)', transition:'color .3s' }}>{task.name}</div>
+                  <div style={{ fontSize:'.75rem', letterSpacing:'.08em', color: ts.status==='done' ? '#3DAA6A' : ts.status==='running' ? 'var(--red)' : 'var(--dim)', textTransform:'uppercase', transition:'color .3s' }}>
                     {ts.status==='done' ? (ts.duration||'✓') : ts.status==='running' ? 'Running...' : 'Queued'}
                   </div>
                 </div>
