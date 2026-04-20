@@ -4,13 +4,18 @@ import Exa from 'exa-js'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 async function getMarketContext(ideaText: string, industry: string) {
+  return null // Temporarily disabled — connection issues on Vercel
   if (!process.env.EXA_API_KEY) return null
   try {
     const exa = new Exa(process.env.EXA_API_KEY)
 
+    // Add 8 second timeout to all Exa calls
+    const withTimeout = (promise: Promise<any>, ms: number) =>
+      Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))])
+
     const [competitors, market] = await Promise.all([
       // Structured competitor data using outputSchema
-      exa.search(`${industry} startup companies apps tools "${ideaText.substring(0,50)}"`, {
+      withTimeout(exa.search(`${industry} startup companies apps tools "${ideaText.substring(0,50)}"`, {
         type: 'auto',
         numResults: 2,
         outputSchema: {
@@ -32,9 +37,9 @@ async function getMarketContext(ideaText: string, industry: string) {
           }
         },
         contents: { highlights: { maxCharacters: 4000 } }
-      }),
+      }, 8000)),
       // Structured market size data
-      exa.search(`${industry} market size revenue growth rate 2025 2026`, {
+      withTimeout(exa.search(`${industry} market size revenue growth rate 2025 2026`, {
         type: 'auto',
         numResults: 2,
         outputSchema: {
@@ -47,7 +52,7 @@ async function getMarketContext(ideaText: string, industry: string) {
           }
         },
         contents: { highlights: { maxCharacters: 4000 } }
-      })
+      }, 8000))
     ])
 
     const competitorData = competitors.output?.content as any
