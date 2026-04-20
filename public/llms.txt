@@ -1,0 +1,26 @@
+# Viabl
+> AI-powered business viability analysis for founders
+
+Viabl analyzes business ideas across 9 dimensions in 60 seconds.
+Free viability score and preview. Full report from $19.
+
+## What Viabl does
+- Scores market demand, competition, moat, execution risk, monetization
+- Pulls live competitor data and market size via real-time web search
+- Generates brand identity kits with name, tagline, colors, typography
+- Creates investor pitch decks and GTM playbooks
+- Provides actionable 90-day next steps
+
+## Use cases
+- Pre-build validation before spending money or time
+- Pivot validation for existing businesses
+- Comparing multiple idea options side by side
+
+## Pricing
+- Free: overall score + verdict + 2 dimensions
+- Report $19: all 9 dimensions + PDF download
+- Founder Pack $79: report + full brand identity kit
+- Launch Kit $149: everything + pitch deck + GTM playbook + ZenBusiness LLC
+
+## Access
+Free analysis: https://viabl.co/analyze

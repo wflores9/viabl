@@ -157,6 +157,23 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
           ))}
         </div>
 
+
+        {/* ZenBusiness — show for GO or MAYBE */}
+        {(r.verdict === 'GO' || r.verdict === 'MAYBE') && (
+          <div style={{ background:'var(--surface)', border:'1px solid rgba(255,255,255,.06)', padding:'2rem 1.8rem', marginBottom:'2px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'2rem', flexWrap:'wrap' }}>
+            <div>
+              <div style={{ fontSize:'.75rem', letterSpacing:'.28em', textTransform:'uppercase', color:'var(--red)', marginBottom:'.6rem', display:'flex', alignItems:'center', gap:'.6rem' }}>
+                <span style={{ display:'block', width:'14px', height:'1px', background:'var(--red)' }}/>Ready to make it official?
+              </div>
+              <div style={{ fontFamily:'var(--font-playfair),serif', fontSize:'1.4rem', fontWeight:900, marginBottom:'.4rem' }}>Form your LLC in 10 minutes</div>
+              <p style={{ fontSize:'.82rem', color:'var(--dim)', lineHeight:1.75 }}>$0 + state fees. Registered agent included. Bank account setup included.</p>
+            </div>
+            <a href="https://zenbusiness.com/?ref=viabl" target="_blank" rel="noopener noreferrer"
+              style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:'.88rem', letterSpacing:'.18em', textTransform:'uppercase', color:'var(--white)', background:'var(--red)', textDecoration:'none', padding:'.9rem 2rem', whiteSpace:'nowrap', flexShrink:0, display:'inline-block' }}>
+              Start with ZenBusiness →
+            </a>
+          </div>
+        )}
         {/* LOCKED + UNLOCK CTA */}
         <div style={{ position:'relative', marginBottom:'2px' }}>
           {/* Blur preview */}

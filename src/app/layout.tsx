@@ -43,6 +43,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
+      
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Viabl",
+          "url": "https://viabl.co",
+          "description": "AI-powered business viability analysis for founders",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "0",
+            "highPrice": "149",
+            "priceCurrency": "USD",
+            "offerCount": "4"
+          },
+          "featureList": [
+            "Market size analysis",
+            "Competition scoring",
+            "Revenue potential modeling",
+            "Risk assessment",
+            "Brand identity generation",
+            "Pitch deck creation",
+            "GTM playbook"
+          ]
+        })}}
+      />
       <body>
         <Cursor />
         {children}
