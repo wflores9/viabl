@@ -4,71 +4,10 @@ import Exa from 'exa-js'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 async function getMarketContext(ideaText: string, industry: string) {
-  return null // Temporarily disabled — connection issues on Vercel
-  if (!process.env.EXA_API_KEY) return null
-  try {
-    const exa = new Exa(process.env.EXA_API_KEY)
-
-    // Add 8 second timeout to all Exa calls
-    const withTimeout = (promise: Promise<any>, ms: number) =>
-      Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))])
-
-    const [competitors, market] = await Promise.all([
-      // Structured competitor data using outputSchema
-      withTimeout(exa.search(`${industry} startup companies apps tools "${ideaText.substring(0,50)}"`, {
-        type: 'auto',
-        numResults: 2,
-        outputSchema: {
-          type: 'object',
-          required: ['competitors'],
-          properties: {
-            competitors: {
-              type: 'array',
-              description: 'List of competing products or companies',
-              items: {
-                type: 'object',
-                required: ['name'],
-                properties: {
-                  name: { type: 'string', description: 'Company or product name' },
-                  description: { type: 'string', description: 'What they do and their positioning' }
-                }
-              }
-            }
-          }
-        },
-        contents: { highlights: { maxCharacters: 4000 } }
-      }, 8000)),
-      // Structured market size data
-      withTimeout(exa.search(`${industry} market size revenue growth rate 2025 2026`, {
-        type: 'auto',
-        numResults: 2,
-        outputSchema: {
-          type: 'object',
-          required: ['market_size', 'growth_rate'],
-          properties: {
-            market_size: { type: 'string', description: 'Total addressable market size in dollars' },
-            growth_rate: { type: 'string', description: 'Annual growth rate percentage' },
-            key_trends: { type: 'string', description: 'Main trends driving the market' }
-          }
-        },
-        contents: { highlights: { maxCharacters: 4000 } }
-      }, 8000))
-    ])
-
-    const competitorData = competitors.output?.content as any
-    const marketData = market.output?.content as any
-
-    return {
-      competitors: competitorData?.competitors || [],
-      marketSize: marketData?.market_size || '',
-      growthRate: marketData?.growth_rate || '',
-      keyTrends: marketData?.key_trends || ''
-    }
-  } catch (err) {
-    console.warn('[exa] search failed:', err)
-    return null
-  }
+  // Exa disabled temporarily — connection issues on Vercel
+  return null
 }
+
 
 export async function runAnalysis(params: {
   ideaText: string; industry: string; target: string; model: string;
@@ -76,7 +15,7 @@ export async function runAnalysis(params: {
 }) {
   const marketContext = await getMarketContext(params.ideaText, params.industry)
 
-  const competitorList = marketContext?.competitors?.length
+  const competitorList = (marketContext as any)?.competitors?.length
     ? marketContext.competitors.map((c: any) => `- ${c.name}: ${c.description || ''}`).join('\n')
     : null
 
