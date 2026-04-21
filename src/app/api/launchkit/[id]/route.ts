@@ -18,12 +18,20 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     if (!analysis?.idea_summary) return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
 
     // Generate all assets in parallel
-    const [pitchBuffer, gtmData, brandKit, logoSVGs] = await Promise.all([
+    const [pitchBuffer, gtmData, brandKit] = await Promise.all([
       generatePitchDeck(analysis, null),
       generateGTM(analysis),
-      generateBrandKit(analysis, analysis.idea_summary),
-      generateLogos(analysis.idea_summary || '', analysis.idea_summary || '', '#C8102E', '#f2ede8', '')
+      generateBrandKit(analysis, analysis.idea_summary)
     ])
+
+    // Generate logos after brand kit so we have real colors
+    const logoSVGs = await generateLogos(
+      brandKit?.name || analysis.idea_summary || '',
+      analysis.idea_summary || '',
+      brandKit?.primary_color || '#C8102E',
+      brandKit?.accent_color || '#f2ede8',
+      brandKit?.tagline || ''
+    )
 
     // Build ZIP
     const zip = new JSZip()

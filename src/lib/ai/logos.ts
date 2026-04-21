@@ -29,9 +29,7 @@ export async function generateLogos(
             instructions: `SVG logo only. No text outside the logo. Viewbox 200x200. Clean paths. Brand color ${primaryColor}.`
           })
           // Extract SVG string from response
-          const content = (result as any)?.svg || 
-                          (result as any)?.content || 
-                          (result as any)?.data?.[0]?.svg || ''
+          const content = (result as any)?.result?.data?.[0]?.svg || ''
           return typeof content === 'string' ? content : ''
         } catch (err) {
           console.warn('[quiver] logo generation failed:', err)
