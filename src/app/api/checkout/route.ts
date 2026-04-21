@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url, sessionId: session.id })
   } catch (err) {
-    console.error('[checkout]', err)
+    console.error('[checkout] FULL ERROR:', JSON.stringify(err, null, 2), err?.message, err?.type, err?.code)
     return NextResponse.json({ error: 'Checkout failed. Please try again.' }, { status: 500 })
   }
 }
